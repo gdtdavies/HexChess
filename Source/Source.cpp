@@ -13,28 +13,43 @@ using namespace std;
 #include "GL\freeglut.h"
 //--------------
 
-int screenWidth = 1000, screenHeight = 1000;
-double sqW, sqH;
+#include "../Headers/Enums.h"
+
+
 glm::mat4 ViewMatrix, ProjectionMatrix;
+
+#include "../Headers/GUI.h"
+GUI gui;
 
 
 void init() {
 	glClearColor(0.0, 0.0, 0.0, 0.0); //sets the clear colour to black
 	glLineWidth(3.5f);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	
 }
 
 void display() {
+	//clear the colour and depth buffers
+	glClear(GL_COLOR_BUFFER_BIT);
 
+	ViewMatrix = glm::translate(glm::mat4(1.0), glm::vec3(0.0, 0.0, 0.0));
+
+	glEnable(GL_BLEND);
+	
+	gui.drawBoard();
+	
+
+	glDisable(GL_BLEND);
+	glutSwapBuffers();
 }
 
 void reshape(int w, int h) {
-	screenWidth = w;
-	screenHeight = h;
+	gui.screenWidth = w;
+	gui.screenHeight = h;
 
-
-	sqW = w / 8 * 1.75;
-	sqH = h / 8 * 1.75;
+	gui.hexSize = (gui.screenWidth < gui.screenHeight ? gui.screenWidth : gui.screenHeight) / 11.0 * 1.9;
 
 	glViewport(0, 0, w, h);	// set Viewport dimensions
 
@@ -50,7 +65,7 @@ int main(int argc, char** argv) {
 	glutInit(&argc, argv);
 
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(screenWidth, screenHeight);
+	glutInitWindowSize(gui.screenWidth, gui.screenHeight);
 	glutInitWindowPosition(0, 0);
 	glutCreateWindow("HexChess");
 
