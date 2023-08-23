@@ -23,7 +23,7 @@ GUI gui;
 
 
 void init() {
-	glClearColor(0.0, 0.0, 0.0, 0.0); //sets the clear colour to black
+	glClearColor(0.0, 0.51, 0.51, 0.0); //sets the clear colour to black
 	glLineWidth(3.5f);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -39,6 +39,54 @@ void display() {
 	glEnable(GL_BLEND);
 	
 	gui.drawBoard();
+
+	gui.drawPiece(0, 1, white, pawn);
+	gui.drawPiece(1, 2, white, pawn);
+	gui.drawPiece(2, 3, white, pawn);
+	gui.drawPiece(3, 4, white, pawn);
+	gui.drawPiece(4, 5, white, pawn);
+	gui.drawPiece(3, 6, white, pawn);
+	gui.drawPiece(2, 7, white, pawn);
+	gui.drawPiece(1, 8, white, pawn);
+	gui.drawPiece(0, 9, white, pawn);
+
+	gui.drawPiece(0, 2, white, rook);
+	gui.drawPiece(0, 8, white, rook);
+
+	gui.drawPiece(0, 3, white, knight);
+	gui.drawPiece(0, 7, white, knight);
+
+	gui.drawPiece(0, 4, white, queen);
+	gui.drawPiece(0, 6, white, queen);
+
+	gui.drawPiece(0, 5, white, bishop);
+	gui.drawPiece(1, 5, white, bishop);
+	gui.drawPiece(2, 5, white, bishop);
+
+	gui.drawPiece(6, 1, black, pawn);
+	gui.drawPiece(6, 2, black, pawn);
+	gui.drawPiece(6, 3, black, pawn);
+	gui.drawPiece(6, 4, black, pawn);
+	gui.drawPiece(6, 5, black, pawn);
+	gui.drawPiece(6, 6, black, pawn);
+	gui.drawPiece(6, 7, black, pawn);
+	gui.drawPiece(6, 8, black, pawn);
+	gui.drawPiece(6, 9, black, pawn);
+
+	gui.drawPiece(7, 2, black, rook);
+	gui.drawPiece(7, 8, black, rook);
+
+	gui.drawPiece(8, 3, black, knight);
+	gui.drawPiece(8, 7, black, knight);
+
+	gui.drawPiece(9, 4, black, queen);
+	gui.drawPiece(9, 6, black, queen);
+
+	gui.drawPiece(10, 5, black, bishop);
+	gui.drawPiece(9, 5, black, bishop);
+	gui.drawPiece(8, 5, black, bishop);
+
+
 	
 
 	glDisable(GL_BLEND);
