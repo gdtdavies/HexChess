@@ -22,12 +22,20 @@ glm::mat4 ViewMatrix, ProjectionMatrix;
 GUI gui;
 
 
+
+void mouseCallback(int button, int state, int x, int y);
+
+bool isInside_tri(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y);
+
+//=================================<<--------------------------->>================================//
+//=================================<< START OF OPENGL FUNCTIONS >>================================//
+//=================================<<--------------------------->>================================//
+
+
 void init() {
 	glClearColor(0.0, 0.51, 0.51, 0.0); //sets the clear colour to black
 	glLineWidth(3.5f);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	
 }
 
 void display() {
@@ -87,8 +95,6 @@ void display() {
 	gui.drawPiece(8, 5, black, bishop);
 
 
-	
-
 	glDisable(GL_BLEND);
 	glutSwapBuffers();
 }
@@ -105,8 +111,41 @@ void reshape(int w, int h) {
 }
 
 void idle() {
-	//glutMouseFunc(mouseCallback);
+	glutMouseFunc(mouseCallback);
 	glutPostRedisplay();
+}
+
+//=User Inputs====||==================||==================||==================||==================> >
+
+void mouseCallback(int button, int state, int x, int y) {
+	
+	if (!(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)) return;
+
+	y = gui.screenHeight - y;
+
+	//cout << x << ", " << y << endl;
+	for (Hex hex : gui.hexes) {
+		if (!(hex.x6 < x && x < hex.x3 && hex.y6 < y && y < hex.y3)
+			&& !isInside_tri(hex.x2, hex.y2, hex.x6, hex.y6, hex.x1, hex.y1, x, y)
+			&& !isInside_tri(hex.x3, hex.y3, hex.x4, hex.y4, hex.x5, hex.y5, x, y)) continue;
+		cout << "Hexagon " << hex.id << " clicked" << endl;
+	}
+}
+
+//===================================<<---------------------->>===================================//
+//===================================<< END OPENGL FUNCTIONS >>===================================//
+//===================================<<---------------------->>===================================//
+
+
+bool isInside_tri(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y)
+{
+	float a = abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
+	float a1 = abs((x * (y2 - y3) + x2 * (y3 - y) + x3 * (y - y2)) / 2.0);
+	float a2 = abs((x1 * (y - y3) + x * (y3 - y1) + x3 * (y1 - y)) / 2.0);
+	float a3 = abs((x1 * (y2 - y) + x2 * (y - y1) + x * (y1 - y2)) / 2.0);
+
+	/* Check if sum of A1, A2 and A3 is same as A */
+	return (a == a1 + a2 + a3);
 }
 
 int main(int argc, char** argv) {

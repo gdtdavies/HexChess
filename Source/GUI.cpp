@@ -1,4 +1,5 @@
 #include "../Headers/GUI.h"
+#include "../Headers/Hex.h"
 
 #include <iostream>
 #include <vector>
@@ -30,13 +31,25 @@ void GUI::drawLine(float x1, float y1, float x2, float y2, Colour c) {
 void GUI::drawHex(float x, float y, double sz, std::vector<float> c) {
 	glBegin(GL_POLYGON);
 	glColor3f(c.at(0), c.at(1), c.at(2));
-	glVertex2d(x - sz/1.5, y);
-	glVertex2d(x - sz/3., y + sz/2.);
-	glVertex2d(x + sz/3., y + sz/2.);
-	glVertex2d(x + sz/1.5, y);
-	glVertex2d(x + sz/3., y - sz/2.);
-	glVertex2d(x - sz/3., y - sz/2.);
+	glVertex2d(x - sz / 1.5, y);
+	glVertex2d(x - sz / 3., y + sz / 2.);
+	glVertex2d(x + sz / 3., y + sz / 2.);
+	glVertex2d(x + sz / 1.5, y);
+	glVertex2d(x + sz / 3., y - sz / 2.);
+	glVertex2d(x - sz / 3., y - sz / 2.);
 	glEnd();
+
+	if (hexes.size() >= 91) return;
+	Hex hex;
+	hex.x1 = ((x - sz / 1.5) + 1) / 2 * screenWidth; hex.y1 = ( y            + 1) / 2 * screenHeight;
+	hex.x2 = ((x - sz / 3.)  + 1) / 2 * screenWidth; hex.y2 = ((y + sz / 2.) + 1) / 2 * screenHeight;
+	hex.x3 = ((x + sz / 3.)  + 1) / 2 * screenWidth; hex.y3 = ((y + sz / 2.) + 1) / 2 * screenHeight;
+	hex.x4 = ((x + sz / 1.5) + 1) / 2 * screenWidth; hex.y4 = ( y            + 1) / 2 * screenHeight;
+	hex.x5 = ((x + sz / 3.)  + 1) / 2 * screenWidth; hex.y5 = ((y - sz / 2.) + 1) / 2 * screenHeight;
+	hex.x6 = ((x - sz / 3.)  + 1) / 2 * screenWidth; hex.y6 = ((y - sz / 2.) + 1) / 2 * screenHeight;
+	if (hexes.empty()) hex.id = 0;
+	else hex.id = hexes.back().id + 1;
+	hexes.push_back(hex);
 }
 
 void GUI::drawPawn(float x, float y, Colour c) {
@@ -112,6 +125,7 @@ void GUI::drawBoard() {
 			y += (sz / 2) * (file - 10);
 			ranksz--;
 		}
+
 		for (int rank = 0; rank < ranksz; rank++) {
 			counter++;
 			y += sz ;
@@ -124,9 +138,9 @@ void GUI::drawBoard() {
 				colour = { 0.5, 0.45, 0.45 };
 			else if (std::count(light.begin(), light.end(), counter) != 0) 
 				colour = { 0.75, 0.7, 0.7 };
+			
 			drawHex(x, y, sz, colour);
 
-			
 		}
 		y = -sz / 2 - sz * 3;
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "../Headers/Enums.h"
+#include "../Headers/Hex.h"
 #include <vector>
 
 class GUI {
@@ -18,6 +19,7 @@ private:
 public:
 	double screenWidth = 1000, screenHeight = 1000;
 	double hexSize;
+	std::vector<Hex> hexes;
 	void drawPiece(float rank, float file, Colour c, Type t);
 	
 	void drawBoard();
