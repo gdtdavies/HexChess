@@ -21,15 +21,17 @@ glm::mat4 ViewMatrix, ProjectionMatrix;
 #include "../Headers/GUI.h"
 GUI gui;
 
+Hexagon selectedHex = none;
+
 
 
 void mouseCallback(int button, int state, int x, int y);
 
-bool isInside_tri(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y);
+bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y);
 
-//=================================<<--------------------------->>================================//
-//=================================<< START OF OPENGL FUNCTIONS >>================================//
-//=================================<<--------------------------->>================================//
+// /================================<<--------------------------->>================================/
+// /================================<< START OF OPENGL FUNCTIONS >>================================/
+// /================================<<--------------------------->>================================/
 
 
 void init() {
@@ -115,7 +117,7 @@ void idle() {
 	glutPostRedisplay();
 }
 
-//=User Inputs====||==================||==================||==================||==================> >
+//=User Inputs====||==================||==================||==================||==================>>
 
 void mouseCallback(int button, int state, int x, int y) {
 	
@@ -124,28 +126,58 @@ void mouseCallback(int button, int state, int x, int y) {
 	y = gui.screenHeight - y;
 
 	//cout << x << ", " << y << endl;
-	for (Hex hex : gui.hexes) {
-		if (!(hex.x6 < x && x < hex.x3 && hex.y6 < y && y < hex.y3)
-			&& !isInside_tri(hex.x2, hex.y2, hex.x6, hex.y6, hex.x1, hex.y1, x, y)
-			&& !isInside_tri(hex.x3, hex.y3, hex.x4, hex.y4, hex.x5, hex.y5, x, y)) continue;
-		cout << "Hexagon " << hex.id << " clicked" << endl;
+	for (int i = 0; i < gui.hexes.size(); i++){
+
+		Hex hex = gui.hexes[i];
+
+		if (!isInside_hex(hex.xcoords, hex.ycoords, x, y)) continue;
+		//cout << "Hexagon " << hex.id << " clicked" << endl;
+
+		if (selectedHex == none) {
+			selectedHex = static_cast<Hexagon>(hex.id);
+			cout << "selected hexagon " << hex.id << endl;
+			return;
+		}
+		else if (selectedHex == hex.id) {
+			selectedHex = none;
+			cout << "deselected hexagon " << hex.id << endl;
+			return;
+		}
+		else {
+			//check the piece can move to the hex
+			//if it can
+			//		move the piece and deselect the hex
+			//else 
+			//		do nothing
+			selectedHex = static_cast<Hexagon>(hex.id);
+			cout << "selected hexagon " << hex.id << endl;
+			return;
+		}
+
 	}
 }
 
-//===================================<<---------------------->>===================================//
-//===================================<< END OPENGL FUNCTIONS >>===================================//
-//===================================<<---------------------->>===================================//
+// /==================================<<---------------------->>===================================/
+// /==================================<< END OPENGL FUNCTIONS >>===================================/
+// /==================================<<---------------------->>===================================/
 
 
-bool isInside_tri(int x1, int y1, int x2, int y2, int x3, int y3, int x, int y)
+//=Misc===========||==================||==================||==================||==================>>
+
+
+bool isInside_tri(float x1, float y1, float x2, float y2, float x3, float y3, int x, int y)
 {
-	float a = abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0);
-	float a1 = abs((x * (y2 - y3) + x2 * (y3 - y) + x3 * (y - y2)) / 2.0);
-	float a2 = abs((x1 * (y - y3) + x * (y3 - y1) + x3 * (y1 - y)) / 2.0);
-	float a3 = abs((x1 * (y2 - y) + x2 * (y - y1) + x * (y1 - y2)) / 2.0);
+	float a  = abs((x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2)) / 2.0);
+	float a1 = abs((x *(y2 - y3) + x2*(y3 - y ) + x3*(y  - y2)) / 2.0);
+	float a2 = abs((x1*(y  - y3) + x *(y3 - y1) + x3*(y1 - y )) / 2.0);
+	float a3 = abs((x1*(y2 - y ) + x2*(y  - y1) + x *(y1 - y2)) / 2.0);
 
-	/* Check if sum of A1, A2 and A3 is same as A */
 	return (a == a1 + a2 + a3);
+}
+bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
+	return (xcoords[0] < x && x < xcoords[3] && ycoords[0] < y && y < ycoords[3])
+		|| (isInside_tri(xcoords[0], ycoords[0], xcoords[1], ycoords[1], xcoords[2], ycoords[2], x, y))
+		|| (isInside_tri(xcoords[3], ycoords[3], xcoords[4], ycoords[4], xcoords[5], ycoords[5], x, y));
 }
 
 int main(int argc, char** argv) {
