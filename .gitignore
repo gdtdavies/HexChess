@@ -45,5 +45,6 @@ x64/*
 *.vcxproj.user
 /packages
 /packages.config
-/hexColours.xlsx
-/board.tif
+
+*.tif
+*.xlsx

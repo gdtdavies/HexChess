@@ -18,6 +18,8 @@ using namespace std;
 
 glm::mat4 ViewMatrix, ProjectionMatrix;
 
+#include "../Headers/Bitboards.h"
+
 #include "../Headers/GUI.h"
 GUI gui;
 
@@ -133,14 +135,18 @@ void mouseCallback(int button, int state, int x, int y) {
 		if (!isInside_hex(hex.xcoords, hex.ycoords, x, y)) continue;
 		//cout << "Hexagon " << hex.id << " clicked" << endl;
 
+		if (Rank01.test(hex.id)) cout << "rank 1" << endl;
+		if (Rank06.test(hex.id)) cout << "rank 6" << endl;
+		if (Rank11.test(hex.id)) cout << "rank 11" << endl;
+
 		if (selectedHex == none) {
 			selectedHex = static_cast<Hexagon>(hex.id);
-			cout << "selected hexagon " << hex.id << endl;
+			//cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 		else if (selectedHex == hex.id) {
 			selectedHex = none;
-			cout << "deselected hexagon " << hex.id << endl;
+			//cout << "deselected hexagon " << hex.id << endl;
 			return;
 		}
 		else {
@@ -150,7 +156,7 @@ void mouseCallback(int button, int state, int x, int y) {
 			//else 
 			//		do nothing
 			selectedHex = static_cast<Hexagon>(hex.id);
-			cout << "selected hexagon " << hex.id << endl;
+			//cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 
