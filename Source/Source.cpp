@@ -19,7 +19,6 @@ using namespace std;
 glm::mat4 ViewMatrix, ProjectionMatrix;
 
 #include "../Headers/Bitboards.h"
-
 #include "../Headers/GUI.h"
 GUI gui;
 
@@ -69,7 +68,7 @@ void display() {
 	gui.drawPiece(0, 7, white, knight);
 
 	gui.drawPiece(0, 4, white, queen);
-	gui.drawPiece(0, 6, white, queen);
+	gui.drawPiece(0, 6, white, king);
 
 	gui.drawPiece(0, 5, white, bishop);
 	gui.drawPiece(1, 5, white, bishop);
@@ -92,7 +91,7 @@ void display() {
 	gui.drawPiece(8, 7, black, knight);
 
 	gui.drawPiece(9, 4, black, queen);
-	gui.drawPiece(9, 6, black, queen);
+	gui.drawPiece(9, 6, black, king);
 
 	gui.drawPiece(10, 5, black, bishop);
 	gui.drawPiece(9, 5, black, bishop);
@@ -135,18 +134,18 @@ void mouseCallback(int button, int state, int x, int y) {
 		if (!isInside_hex(hex.xcoords, hex.ycoords, x, y)) continue;
 		//cout << "Hexagon " << hex.id << " clicked" << endl;
 
-		if (Rank01.test(hex.id)) cout << "rank 1" << endl;
-		if (Rank06.test(hex.id)) cout << "rank 6" << endl;
-		if (Rank11.test(hex.id)) cout << "rank 11" << endl;
+		//if (Rank01.test(hex.id)) cout << "rank 1" << endl;
+		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
+		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
 
 		if (selectedHex == none) {
 			selectedHex = static_cast<Hexagon>(hex.id);
-			//cout << "selected hexagon " << hex.id << endl;
+			cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 		else if (selectedHex == hex.id) {
 			selectedHex = none;
-			//cout << "deselected hexagon " << hex.id << endl;
+			cout << "deselected hexagon " << hex.id << endl;
 			return;
 		}
 		else {
@@ -156,7 +155,7 @@ void mouseCallback(int button, int state, int x, int y) {
 			//else 
 			//		do nothing
 			selectedHex = static_cast<Hexagon>(hex.id);
-			//cout << "selected hexagon " << hex.id << endl;
+			cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 
@@ -169,7 +168,6 @@ void mouseCallback(int button, int state, int x, int y) {
 
 
 //=Misc===========||==================||==================||==================||==================>>
-
 
 bool isInside_tri(float x1, float y1, float x2, float y2, float x3, float y3, int x, int y)
 {
@@ -185,6 +183,24 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 		|| (isInside_tri(xcoords[0], ycoords[0], xcoords[1], ycoords[1], xcoords[2], ycoords[2], x, y))
 		|| (isInside_tri(xcoords[3], ycoords[3], xcoords[4], ycoords[4], xcoords[5], ycoords[5], x, y));
 }
+
+//=Moving=========||==================||==================||==================||==================>>
+
+//void movePiece(Move m)
+
+//void undoMove()
+
+//=End of Game====||==================||==================||==================||==================>>
+
+//bool isCheckmate()
+
+//bool isStalemate()
+
+//bool isDraw()
+
+//=Load Board=========================||==================||==================||==================>>
+
+//TODO: make function loadFromFen(string fen)
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);

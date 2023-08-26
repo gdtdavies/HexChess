@@ -63,34 +63,51 @@ void GUI::drawPawn(float x, float y, Colour c) {
 }
 void GUI::drawRook(float x, float y, Colour c) {
 	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-	drawLine(x - sz / 2., y, x + sz / 2., y, c);
+	float xratio = 0.866; //sqrt(3)/2
+	float yratio = 0.5;
+
+	//drawLine(x - sz / 2., y, x + sz / 2., y, c);
 	drawLine(x, y - sz / 2., x, y + sz / 2., c);
+	drawLine(x - sz / 2. * xratio, y + sz / 2. * yratio, x + sz / 2. * xratio, y - sz / 2. * yratio, c);
+	drawLine(x + sz / 2. * xratio, y + sz / 2. * yratio, x - sz / 2. * xratio, y - sz / 2. * yratio, c);
 }
 void GUI::drawBishop(float x, float y, Colour c) {
 	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-	float ratio = 0.85;
-	drawLine(x - sz / 2. * ratio, y + sz / 2. * ratio, x + sz / 2. * ratio, y - sz / 2. * ratio, c);
-	drawLine(x - sz / 2. * ratio, y - sz / 2. * ratio, x + sz / 2. * ratio, y + sz / 2. * ratio, c);
+	float xratio = 0.5;
+	float yratio = 0.866;
+	drawLine(x - sz / 2., y, x + sz / 2., y, c);
+	drawLine(x - sz / 2. * xratio, y + sz / 2. * yratio, x + sz / 2. * xratio, y - sz / 2. * yratio, c);
+	drawLine(x - sz / 2. * xratio, y - sz / 2. * yratio, x + sz / 2. * xratio, y + sz / 2. * yratio, c);
 }
 void GUI::drawKnight(float x, float y, Colour c) {
 	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-	drawLine(x, y - sz / 2., x, y + sz / 2., c);
-	drawLine(x - sz / 2., y, x + sz / 2., y, c);
+	float ratio = 0.71;
+	drawLine(x, y - sz / 2. * ratio, x, y + sz / 2. * ratio, c);
+	drawLine(x - sz / 2. * ratio, y, x + sz / 2. * ratio, y, c);
 
-	drawLine(x - sz / 2., y + sz / 4., x - sz / 2., y - sz / 4., c);
-	drawLine(x + sz / 2., y + sz / 4., x + sz / 2., y - sz / 4., c);
+	drawLine(x - sz / 2. * ratio, y, x - sz / 2., y + sz / 4., c);
+	drawLine(x - sz / 2. * ratio, y, x - sz / 2., y - sz / 4., c);
 
-	drawLine(x - sz / 4., y + sz / 2., x + sz / 4., y + sz / 2., c);
-	drawLine(x - sz / 4., y - sz / 2., x + sz / 4., y - sz / 2., c);
+	drawLine(x + sz / 2. * ratio, y, x + sz / 2., y + sz / 4., c);
+	drawLine(x + sz / 2. * ratio, y, x + sz / 2., y - sz / 4., c);
+
+	drawLine(x, y - sz / 2. * ratio, x - sz / 4., y - sz / 2., c);
+	drawLine(x, y - sz / 2. * ratio, x + sz / 4., y - sz / 2., c);
+	
+	drawLine(x, y + sz / 2. * ratio, x - sz / 4., y + sz / 2., c);
+	drawLine(x, y + sz / 2. * ratio, x + sz / 4., y + sz / 2., c);
+
 }
 void GUI::drawQueen(float x, float y, Colour c) {
 	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-	float ratio = 0.85;
-	drawLine(x - sz / 2. * ratio, y + sz / 2. * ratio, x + sz / 2. * ratio, y - sz / 2. * ratio, c);
-	drawLine(x - sz / 2. * ratio, y - sz / 2. * ratio, x + sz / 2. * ratio, y + sz / 2. * ratio, c);
-
-	drawLine(x - sz / 2., y, x + sz / 2., y, c);
-	drawLine(x, y - sz / 2., x, y + sz / 2., c);
+	float ratio = 0.71;
+	//drawLine(x - sz / 2. * ratio, y + sz / 2. * ratio, x + sz / 2. * ratio, y - sz / 2. * ratio, c);
+	//drawLine(x - sz / 2. * ratio, y - sz / 2. * ratio, x + sz / 2. * ratio, y + sz / 2. * ratio, c);
+	//
+	//drawLine(x - sz / 2., y, x + sz / 2., y, c);
+	//drawLine(x, y - sz / 2., x, y + sz / 2., c);
+	drawRook(x, y, c);
+	drawBishop(x, y, c);
 }
 void GUI::drawKing(float x, float y, Colour c) {
 	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
