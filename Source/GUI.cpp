@@ -173,3 +173,23 @@ void GUI::drawSelectedHex(Hex hex) {
 	std::vector<float> c = { 1., 0.5, 0.1 };
 	drawHex(x, y, c);
 }
+
+void GUI::drawAttacks(std::bitset<92> attacks, std::bitset<92> occupied) {
+	for (int i = 0; i < 91; i++) {
+		if (!attacks.test(i)) continue;
+
+		double cx = hexes[i].x_c;
+		double cy = hexes[i].y_c;
+
+		glBegin(GL_LINE_LOOP);
+
+		occupied.test(i) ? glColor3f(0.75f, 0.0f, 0.0f): glColor3f(0.0f, 0.75f, 0.0f);
+		for (int j = 0; j < 20; j++) {
+			float theta = 2.0f * 3.1415926f * float(j) / float(20);//get the current angle 
+			float x = pieceSize / 2 * cosf(theta);//calculate the x component 
+			float y = pieceSize / 2 * sinf(theta);//calculate the y component 
+			glVertex2f(x + cx, y + cy);//output vertex 
+		}
+		glEnd();
+	}
+}

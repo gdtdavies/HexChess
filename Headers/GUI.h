@@ -2,6 +2,7 @@
 #include "../Headers/Enums.h"
 #include "../Headers/Hex.h"
 #include <vector>
+#include <bitset>
 
 class GUI {
 private:
@@ -26,4 +27,6 @@ public:
 	void drawBoard();
 
 	void drawSelectedHex(Hex hex);
+
+	void drawAttacks(std::bitset<92> attacks, std::bitset<92> occupied);
 };

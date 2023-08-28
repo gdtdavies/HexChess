@@ -14,6 +14,7 @@ using namespace std;
 #include "GL\freeglut.h"
 //--------------
 
+#include "../Headers/LookupBitboards.h"
 #include "../Headers/Enums.h"
 
 
@@ -22,9 +23,11 @@ glm::mat4 ViewMatrix, ProjectionMatrix;
 #include "../Headers/Bitboards.h"
 #include "../Headers/GUI.h"
 GUI gui;
+LookupBitboard LuBB;
 
 Tile selectedHex = none;
 
+Colour turn = NA;
 
 
 void mouseCallback(int button, int state, int x, int y);
@@ -42,6 +45,9 @@ void init() {
 	glClearColor(0.0, 0.51, 0.51, 0.0); //sets the clear colour to black
 	glLineWidth(3.5f);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	LuBB.setPawnMoves();
+	LuBB.setPawnAttacks();
 }
 
 void display() {
@@ -55,8 +61,12 @@ void display() {
 	gui.drawBoard();
 	
 	//displaying the selected hex
-	if (selectedHex != none) 
+	if (selectedHex != none) {
 		gui.drawSelectedHex(gui.hexes[selectedHex]);
+		if (Wpawns.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), Occupied);
+		}
+	}
 	
 	//displaying the pieces
 	for (int i = 0; i < 91; i++) {
@@ -120,15 +130,15 @@ void mouseCallback(int button, int state, int x, int y) {
 		//if (Rank01.test(hex.id)) cout << "rank 1" << endl;
 		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
 		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
-
-
+		
+		bitset<92> active_colour = turn == white ? Wpieces : turn == black ? Bpieces : Occupied;
 
 		if (selectedHex == none) {
 			if (!Occupied.test(hex.id)) return; //if the hex is not occupied do nothing
 
 			//check if the colour matches the turn
-
-			selectedHex = static_cast<Tile>(hex.id);
+			if (active_colour.test(hex.id))
+				selectedHex = static_cast<Tile>(hex.id);
 			return;
 		}
 		if (selectedHex == hex.id) {
@@ -138,6 +148,11 @@ void mouseCallback(int button, int state, int x, int y) {
 		}
 
 		//if the colour matches the turn -> select the new hex and return
+		
+		if (active_colour.test(hex.id)) {
+			selectedHex = static_cast<Tile>(hex.id);
+			return;
+		}
 
 		//check if the piece can move to that hex
 
@@ -266,7 +281,7 @@ void loadFromFen(string fen) {
 	
 
 	//=Active Colour=========================================================1=|
-	//TODO
+	turn = fen_info[1] == "w" ? white : fen_info[1] == "b" ? black : NA;
 	
 	//=Possible En Passant Targets===========================================2=|
 	//TODO
