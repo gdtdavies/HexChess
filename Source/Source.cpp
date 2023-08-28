@@ -30,6 +30,8 @@ void mouseCallback(int button, int state, int x, int y);
 
 bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y);
 
+void loadFromFen(string fen);
+
 // /================================<<--------------------------->>================================/
 // /================================<< START OF OPENGL FUNCTIONS >>================================/
 // /================================<<--------------------------->>================================/
@@ -50,53 +52,27 @@ void display() {
 	glEnable(GL_BLEND);
 	
 	gui.drawBoard();
+	
+	for (int sq = 0; sq < 91; sq++) {
+		if (!Occupied.test(sq)) continue;
 
-	gui.drawPiece(0, 1, white, pawn);
-	gui.drawPiece(1, 2, white, pawn);
-	gui.drawPiece(2, 3, white, pawn);
-	gui.drawPiece(3, 4, white, pawn);
-	gui.drawPiece(4, 5, white, pawn);
-	gui.drawPiece(3, 6, white, pawn);
-	gui.drawPiece(2, 7, white, pawn);
-	gui.drawPiece(1, 8, white, pawn);
-	gui.drawPiece(0, 9, white, pawn);
 
-	gui.drawPiece(0, 2, white, rook);
-	gui.drawPiece(0, 8, white, rook);
+		float x = gui.hexes[sq].x_c;
+		float y = gui.hexes[sq].y_c;
 
-	gui.drawPiece(0, 3, white, knight);
-	gui.drawPiece(0, 7, white, knight);
-
-	gui.drawPiece(0, 4, white, queen);
-	gui.drawPiece(0, 6, white, king);
-
-	gui.drawPiece(0, 5, white, bishop);
-	gui.drawPiece(1, 5, white, bishop);
-	gui.drawPiece(2, 5, white, bishop);
-
-	gui.drawPiece(6, 1, black, pawn);
-	gui.drawPiece(6, 2, black, pawn);
-	gui.drawPiece(6, 3, black, pawn);
-	gui.drawPiece(6, 4, black, pawn);
-	gui.drawPiece(6, 5, black, pawn);
-	gui.drawPiece(6, 6, black, pawn);
-	gui.drawPiece(6, 7, black, pawn);
-	gui.drawPiece(6, 8, black, pawn);
-	gui.drawPiece(6, 9, black, pawn);
-
-	gui.drawPiece(7, 2, black, rook);
-	gui.drawPiece(7, 8, black, rook);
-
-	gui.drawPiece(8, 3, black, knight);
-	gui.drawPiece(8, 7, black, knight);
-
-	gui.drawPiece(9, 4, black, queen);
-	gui.drawPiece(9, 6, black, king);
-
-	gui.drawPiece(10, 5, black, bishop);
-	gui.drawPiece(9, 5, black, bishop);
-	gui.drawPiece(8, 5, black, bishop);
-
+		if (Wpawns.test(sq)) gui.drawPiece(x, y, white, pawn);
+		else if (Bpawns.test(sq)) gui.drawPiece(x, y, black, pawn);
+		else if (Wrooks.test(sq)) gui.drawPiece(x, y, white, rook);
+		else if (Brooks.test(sq)) gui.drawPiece(x, y, black, rook);
+		else if (Wknights.test(sq)) gui.drawPiece(x, y, white, knight);
+		else if (Bknights.test(sq)) gui.drawPiece(x, y, black, knight);
+		else if (Wbishops.test(sq)) gui.drawPiece(x, y, white, bishop);
+		else if (Bbishops.test(sq)) gui.drawPiece(x, y, black, bishop);
+		else if (Wqueens.test(sq)) gui.drawPiece(x, y, white, queen);
+		else if (Bqueens.test(sq)) gui.drawPiece(x, y, black, queen);
+		else if (Wking.test(sq)) gui.drawPiece(x, y, white, king);
+		else if (Bking.test(sq)) gui.drawPiece(x, y, black, king);
+	}
 
 	glDisable(GL_BLEND);
 	glutSwapBuffers();
@@ -134,18 +110,18 @@ void mouseCallback(int button, int state, int x, int y) {
 		if (!isInside_hex(hex.xcoords, hex.ycoords, x, y)) continue;
 		//cout << "Hexagon " << hex.id << " clicked" << endl;
 
-		//if (Rank01.test(hex.id)) cout << "rank 1" << endl;
-		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
-		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
+		if (Rank01.test(hex.id)) cout << "rank 1" << endl;
+		if (Rank06.test(hex.id)) cout << "rank 6" << endl;
+		if (Rank11.test(hex.id)) cout << "rank 11" << endl;
 
 		if (selectedHex == none) {
 			selectedHex = static_cast<Hexagon>(hex.id);
-			cout << "selected hexagon " << hex.id << endl;
+			//cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 		else if (selectedHex == hex.id) {
 			selectedHex = none;
-			cout << "deselected hexagon " << hex.id << endl;
+			//cout << "deselected hexagon " << hex.id << endl;
 			return;
 		}
 		else {
@@ -155,7 +131,7 @@ void mouseCallback(int button, int state, int x, int y) {
 			//else 
 			//		do nothing
 			selectedHex = static_cast<Hexagon>(hex.id);
-			cout << "selected hexagon " << hex.id << endl;
+			//cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 
@@ -200,7 +176,82 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 
 //=Load Board=========================||==================||==================||==================>>
 
-//TODO: make function loadFromFen(string fen)
+void loadFromFen(string fen) {
+	
+	string fen_info[5] = { "", "", "", "", "" };
+	
+	//=split the fen into componants===========================================|
+	string info = "";
+	int counter = 0;
+	for (char c : fen) {
+		if (c == ' ') {
+			fen_info[counter] = info;
+			info = "";
+			counter++;
+		}
+		else
+			info += c;
+	}
+
+	//=Piece Positions=======================================================0=|
+	Wpawns.reset(); Wrooks.reset(); Wknights.reset();
+	Wbishops.reset(); Wqueens.reset(); Wking.reset();
+
+	Bpawns.reset(); Brooks.reset(); Bknights.reset();
+	Bbishops.reset(); Bqueens.reset(); Bking.reset();
+	
+	int hex = 0;
+	for (int i = 0; i < fen_info[0].length(); i++) {
+		//fen format is: "piece_pos active_colour ep_hexes half_move_counter full_move_counter"
+		char c = fen_info[0][i];
+		if (isdigit(c)) {
+			// check if the number is two digits
+			if (c == '1' && i + 1 < fen_info[0].length() && isdigit(fen_info[0][i + 1])) {
+				hex += 10 + int(fen_info[0][i + 1]) - 48;
+				i++;
+			}
+			else 
+				hex += int(c) - 48;
+			continue; 
+		}
+		
+		if (c == '/') continue;
+		//set the bit in the bitboard to 1
+		c == 'p' ? Wpawns.set(hex)
+			: c == 'P' ? Bpawns.set(hex)
+			: c == 'r' ? Wrooks.set(hex)
+			: c == 'R' ? Brooks.set(hex)
+			: c == 'n' ? Wknights.set(hex)
+			: c == 'N' ? Bknights.set(hex)
+			: c == 'b' ? Wbishops.set(hex)
+			: c == 'B' ? Bbishops.set(hex)
+			: c == 'q' ? Wqueens.set(hex)
+			: c == 'Q' ? Bqueens.set(hex)
+			: c == 'k' ? Wking.set(hex)
+			: c == 'K' ? Bking.set(hex)
+			: __noop;
+		hex++;
+	}
+
+	Wpieces = Wpawns | Wrooks | Wknights | Wbishops | Wqueens | Wking;
+	Bpieces = Bpawns | Brooks | Bknights | Bbishops | Bqueens | Bking;
+
+	Occupied = Wpieces | Bpieces;
+	
+
+	//=Active Colour=========================================================1=|
+	//TODO
+	
+	//=Possible En Passant Targets===========================================2=|
+	//TODO
+	
+	//=Halfmove Clock========================================================3=|
+	//TODO
+	
+	//=Fullmove Number=======================================================4=|
+	//TODO
+	
+}
 
 int main(int argc, char** argv) {
 	glutInit(&argc, argv);
@@ -216,6 +267,9 @@ int main(int argc, char** argv) {
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
+
+	loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
+	//loadFromFen("6/pPpPpPp/8/PpPpPpPpP/10/pPpPpPpPpPp/10/PpPpPpPpP/8/pPpPpPp/6 w - 0 1");
 
 	init();
 	glutDisplayFunc(display);

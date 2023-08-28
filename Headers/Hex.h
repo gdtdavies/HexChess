@@ -11,6 +11,7 @@ public:
 	//    0----5    
 
 	int id;
+	float x_c, y_c;
 
 	std::vector<float> xcoords;
 	std::vector<float> ycoords;
