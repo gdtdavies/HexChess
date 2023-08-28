@@ -23,7 +23,7 @@ glm::mat4 ViewMatrix, ProjectionMatrix;
 #include "../Headers/GUI.h"
 GUI gui;
 
-Hexagon selectedHex = none;
+Tile selectedHex = none;
 
 
 
@@ -54,25 +54,28 @@ void display() {
 	
 	gui.drawBoard();
 	
-	for (int hex = 0; hex < 91; hex++) {
-		if (!Occupied.test(hex)) continue;
+	//displaying the selected hex
+	if (selectedHex != none) 
+		gui.drawSelectedHex(gui.hexes[selectedHex]);
+	
+	//displaying the pieces
+	for (int i = 0; i < 91; i++) {
+		if (!Occupied.test(i)) continue;
 
+		Hex hex = gui.hexes[i];
 
-		float x = gui.hexes[hex].x_c;
-		float y = gui.hexes[hex].y_c;
-
-		if (Wpawns.test(hex)) gui.drawPiece(x, y, white, pawn);
-		else if (Bpawns.test(hex)) gui.drawPiece(x, y, black, pawn);
-		else if (Wrooks.test(hex)) gui.drawPiece(x, y, white, rook);
-		else if (Brooks.test(hex)) gui.drawPiece(x, y, black, rook);
-		else if (Wknights.test(hex)) gui.drawPiece(x, y, white, knight);
-		else if (Bknights.test(hex)) gui.drawPiece(x, y, black, knight);
-		else if (Wbishops.test(hex)) gui.drawPiece(x, y, white, bishop);
-		else if (Bbishops.test(hex)) gui.drawPiece(x, y, black, bishop);
-		else if (Wqueens.test(hex)) gui.drawPiece(x, y, white, queen);
-		else if (Bqueens.test(hex)) gui.drawPiece(x, y, black, queen);
-		else if (Wking.test(hex)) gui.drawPiece(x, y, white, king);
-		else if (Bking.test(hex)) gui.drawPiece(x, y, black, king);
+		if      (Wpawns.test(i))   gui.drawPiece(hex, white, pawn);
+		else if (Bpawns.test(i))   gui.drawPiece(hex, black, pawn);
+		else if (Wrooks.test(i))   gui.drawPiece(hex, white, rook);
+		else if (Brooks.test(i))   gui.drawPiece(hex, black, rook);
+		else if (Wknights.test(i)) gui.drawPiece(hex, white, knight);
+		else if (Bknights.test(i)) gui.drawPiece(hex, black, knight);
+		else if (Wbishops.test(i)) gui.drawPiece(hex, white, bishop);
+		else if (Bbishops.test(i)) gui.drawPiece(hex, black, bishop);
+		else if (Wqueens.test(i))  gui.drawPiece(hex, white, queen);
+		else if (Bqueens.test(i))  gui.drawPiece(hex, black, queen);
+		else if (Wking.test(i))    gui.drawPiece(hex, white, king);
+		else if (Bking.test(i))    gui.drawPiece(hex, black, king);
 	}
 
 	glDisable(GL_BLEND);
@@ -83,7 +86,10 @@ void reshape(int w, int h) {
 	gui.screenWidth = w;
 	gui.screenHeight = h;
 
-	gui.hexSize = (gui.screenWidth < gui.screenHeight ? gui.screenWidth : gui.screenHeight) / 11.0 * 1.9;
+	// the size of a hex the one 11th of the board which is 95% of the screen
+	gui.hexSize = (gui.screenWidth < gui.screenHeight ? gui.screenWidth : gui.screenHeight) / 11.0 * 1.9; 
+	gui.hexSize /= (gui.screenWidth < gui.screenHeight ? gui.screenWidth : gui.screenHeight); // normalise hexSize
+	gui.pieceSize = gui.hexSize * 0.67; // a piece is two thrirds the size of a hex
 
 	glViewport(0, 0, w, h);	// set Viewport dimensions
 
@@ -115,26 +121,26 @@ void mouseCallback(int button, int state, int x, int y) {
 		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
 		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
 
+
+
 		if (selectedHex == none) {
-			selectedHex = static_cast<Hexagon>(hex.id);
-			cout << "selected hexagon " << hex.id << endl;
+			if (!Occupied.test(hex.id)) return; //if the hex is not occupied do nothing
+
+			//check if the colour matches the turn
+
+			selectedHex = static_cast<Tile>(hex.id);
 			return;
 		}
-		else if (selectedHex == hex.id) {
+		if (selectedHex == hex.id) {
+			//deselect the hex
 			selectedHex = none;
-			cout << "deselected hexagon " << hex.id << endl;
 			return;
 		}
-		else {
-			//check the piece can move to the hex
-			//if it can
-			//		move the piece and deselect the hex
-			//else 
-			//		do nothing
-			selectedHex = static_cast<Hexagon>(hex.id);
-			cout << "selected hexagon " << hex.id << endl;
-			return;
-		}
+
+		//if the colour matches the turn -> select the new hex and return
+
+		//check if the piece can move to that hex
+
 
 	}
 }
@@ -185,12 +191,6 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 
 	return true;	
 }
-
-//=Moving=========||==================||==================||==================||==================>>
-
-//void movePiece(Move m)
-
-//void undoMove()
 
 //=End of Game====||==================||==================||==================||==================>>
 

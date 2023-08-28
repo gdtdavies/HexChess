@@ -28,27 +28,27 @@ void GUI::drawLine(float x1, float y1, float x2, float y2, Colour c) {
 	glEnd();
 }
 
-void GUI::drawHex(float x, float y, double sz, std::vector<float> c) {
+void GUI::drawHex(float x, float y, std::vector<float> c) {
 	//draw the hex
 	glBegin(GL_POLYGON);
 	glColor3f(c.at(0), c.at(1), c.at(2));
-	glVertex2d(x - sz / 1.5, y);
-	glVertex2d(x - sz / 3., y + sz / 2.);
-	glVertex2d(x + sz / 3., y + sz / 2.);
-	glVertex2d(x + sz / 1.5, y);
-	glVertex2d(x + sz / 3., y - sz / 2.);
-	glVertex2d(x - sz / 3., y - sz / 2.);
+	glVertex2d(x - hexSize / 1.5, y);
+	glVertex2d(x - hexSize / 3., y + hexSize / 2.);
+	glVertex2d(x + hexSize / 3., y + hexSize / 2.);
+	glVertex2d(x + hexSize / 1.5, y);
+	glVertex2d(x + hexSize / 3., y - hexSize / 2.);
+	glVertex2d(x - hexSize / 3., y - hexSize / 2.);
 	glEnd();
 
 	//add the hex to the list of hexes
 	if (hexes.size() >= 91) return;
 	Hex hex;
-	hex.xcoords.push_back(((x - sz / 3.0) + 1) / 2 * screenWidth); hex.ycoords.push_back(((y - sz / 2.) + 1) / 2 * screenHeight);
-	hex.xcoords.push_back(((x - sz / 1.5) + 1) / 2 * screenWidth);	hex.ycoords.push_back(( y            + 1) / 2 * screenHeight);
-	hex.xcoords.push_back(((x - sz / 3.0) + 1) / 2 * screenWidth);	hex.ycoords.push_back(((y + sz / 2.) + 1) / 2 * screenHeight);
-	hex.xcoords.push_back(((x + sz / 3.0) + 1) / 2 * screenWidth);	hex.ycoords.push_back(((y + sz / 2.) + 1) / 2 * screenHeight);
-	hex.xcoords.push_back(((x + sz / 1.5) + 1) / 2 * screenWidth);	hex.ycoords.push_back(( y            + 1) / 2 * screenHeight);
-	hex.xcoords.push_back(((x + sz / 3.0) + 1) / 2 * screenWidth);	hex.ycoords.push_back(((y - sz / 2.) + 1) / 2 * screenHeight);
+	hex.xcoords.push_back(((x - hexSize / 3.0) + 1) / 2 * screenWidth); hex.ycoords.push_back(((y - hexSize / 2.) + 1) / 2 * screenHeight);
+	hex.xcoords.push_back(((x - hexSize / 1.5) + 1) / 2 * screenWidth); hex.ycoords.push_back(( y +      1) / 2 * screenHeight);
+	hex.xcoords.push_back(((x - hexSize / 3.0) + 1) / 2 * screenWidth); hex.ycoords.push_back(((y + hexSize / 2.) + 1) / 2 * screenHeight);
+	hex.xcoords.push_back(((x + hexSize / 3.0) + 1) / 2 * screenWidth); hex.ycoords.push_back(((y + hexSize / 2.) + 1) / 2 * screenHeight);
+	hex.xcoords.push_back(((x + hexSize / 1.5) + 1) / 2 * screenWidth); hex.ycoords.push_back(( y +      1) / 2 * screenHeight);
+	hex.xcoords.push_back(((x + hexSize / 3.0) + 1) / 2 * screenWidth); hex.ycoords.push_back(((y - hexSize / 2.) + 1) / 2 * screenHeight);
 
 	if (hexes.empty()) 
 		hex.id = 0;
@@ -61,72 +61,63 @@ void GUI::drawHex(float x, float y, double sz, std::vector<float> c) {
 }
 
 void GUI::drawPawn(float x, float y, Colour c) {
-	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-	drawLine(x, y - sz / 3., x, y + sz / 3., c);
+	drawLine(x, y - pieceSize / 3., x, y + pieceSize / 3., c);
 }
 void GUI::drawRook(float x, float y, Colour c) {
-	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
 	float xratio = 0.866; //sqrt(3)/2
 	float yratio = 0.5;
 
-	//drawLine(x - sz / 2., y, x + sz / 2., y, c);
-	drawLine(x, y - sz / 2., x, y + sz / 2., c);
-	drawLine(x - sz / 2. * xratio, y + sz / 2. * yratio, x + sz / 2. * xratio, y - sz / 2. * yratio, c);
-	drawLine(x + sz / 2. * xratio, y + sz / 2. * yratio, x - sz / 2. * xratio, y - sz / 2. * yratio, c);
+	drawLine(x, y - pieceSize / 2., x, y + pieceSize / 2., c);
+	drawLine(x - pieceSize / 2. * xratio, y + pieceSize / 2. * yratio, x + pieceSize / 2. * xratio, y - pieceSize / 2. * yratio, c);
+	drawLine(x + pieceSize / 2. * xratio, y + pieceSize / 2. * yratio, x - pieceSize / 2. * xratio, y - pieceSize / 2. * yratio, c);
 }
 void GUI::drawBishop(float x, float y, Colour c) {
-	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
 	float xratio = 0.5;
 	float yratio = 0.866;
-	drawLine(x - sz / 2., y, x + sz / 2., y, c);
-	drawLine(x - sz / 2. * xratio, y + sz / 2. * yratio, x + sz / 2. * xratio, y - sz / 2. * yratio, c);
-	drawLine(x - sz / 2. * xratio, y - sz / 2. * yratio, x + sz / 2. * xratio, y + sz / 2. * yratio, c);
+	drawLine(x - pieceSize / 2., y, x + pieceSize / 2., y, c);
+	drawLine(x - pieceSize / 2. * xratio, y + pieceSize / 2. * yratio, x + pieceSize / 2. * xratio, y - pieceSize / 2. * yratio, c);
+	drawLine(x - pieceSize / 2. * xratio, y - pieceSize / 2. * yratio, x + pieceSize / 2. * xratio, y + pieceSize / 2. * yratio, c);
 }
 void GUI::drawKnight(float x, float y, Colour c) {
-	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
 	float ratio = 0.71;
-	drawLine(x, y - sz / 2. * ratio, x, y + sz / 2. * ratio, c);
-	drawLine(x - sz / 2. * ratio, y, x + sz / 2. * ratio, y, c);
+	drawLine(x, y - pieceSize / 2. * ratio, x, y + pieceSize / 2. * ratio, c);
+	drawLine(x - pieceSize / 2. * ratio, y, x + pieceSize / 2. * ratio, y, c);
 
-	drawLine(x - sz / 2. * ratio, y, x - sz / 2., y + sz / 4., c);
-	drawLine(x - sz / 2. * ratio, y, x - sz / 2., y - sz / 4., c);
+	drawLine(x - pieceSize / 2. * ratio, y, x - pieceSize / 2., y + pieceSize / 4., c);
+	drawLine(x - pieceSize / 2. * ratio, y, x - pieceSize / 2., y - pieceSize / 4., c);
 
-	drawLine(x + sz / 2. * ratio, y, x + sz / 2., y + sz / 4., c);
-	drawLine(x + sz / 2. * ratio, y, x + sz / 2., y - sz / 4., c);
+	drawLine(x + pieceSize / 2. * ratio, y, x + pieceSize / 2., y + pieceSize / 4., c);
+	drawLine(x + pieceSize / 2. * ratio, y, x + pieceSize / 2., y - pieceSize / 4., c);
 
-	drawLine(x, y - sz / 2. * ratio, x - sz / 4., y - sz / 2., c);
-	drawLine(x, y - sz / 2. * ratio, x + sz / 4., y - sz / 2., c);
+	drawLine(x, y - pieceSize / 2. * ratio, x - pieceSize / 4., y - pieceSize / 2., c);
+	drawLine(x, y - pieceSize / 2. * ratio, x + pieceSize / 4., y - pieceSize / 2., c);
 	
-	drawLine(x, y + sz / 2. * ratio, x - sz / 4., y + sz / 2., c);
-	drawLine(x, y + sz / 2. * ratio, x + sz / 4., y + sz / 2., c);
+	drawLine(x, y + pieceSize / 2. * ratio, x - pieceSize / 4., y + pieceSize / 2., c);
+	drawLine(x, y + pieceSize / 2. * ratio, x + pieceSize / 4., y + pieceSize / 2., c);
 
 }
 void GUI::drawQueen(float x, float y, Colour c) {
-	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
 	float ratio = 0.71;
 	drawRook(x, y, c);
 	drawBishop(x, y, c);
 }
 void GUI::drawKing(float x, float y, Colour c) {
-	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-
-	drawLine(x - sz / 3.0, y + sz / 2., x + sz / 3.0, y + sz / 2., c);
-	drawLine(x + sz / 3.0, y + sz / 2., x + sz / 1.5, y, c);
-	drawLine(x + sz / 1.5, y, x + sz / 3.0, y - sz / 2., c);
-	drawLine(x + sz / 3.0, y - sz / 2., x - sz / 3.0, y - sz / 2., c);
-	drawLine(x - sz / 3.0, y - sz / 2, x - sz / 1.5, y, c);
-	drawLine(x - sz / 1.5, y, x - sz / 3.0, y + sz / 2., c);
+	drawLine(x - pieceSize / 3.0, y + pieceSize / 2., x + pieceSize / 3.0, y + pieceSize / 2., c);
+	drawLine(x + pieceSize / 3.0, y + pieceSize / 2., x + pieceSize / 1.5, y                 , c);
+	drawLine(x + pieceSize / 1.5, y                 , x + pieceSize / 3.0, y - pieceSize / 2., c);
+	drawLine(x + pieceSize / 3.0, y - pieceSize / 2., x - pieceSize / 3.0, y - pieceSize / 2., c);
+	drawLine(x - pieceSize / 3.0, y - pieceSize / 2., x - pieceSize / 1.5, y                 , c);
+	drawLine(x - pieceSize / 1.5, y                 , x - pieceSize / 3.0, y + pieceSize / 2., c);
 
 }
 
 //-public-------
 
 void GUI::drawBoard() {
-	double sz = hexSize / (screenWidth < screenHeight ? screenWidth : screenHeight);
 
 	//move the start point to the bottom left
-	double init_x = -sz * 5;
-	double init_y = -sz * 2.5;
+	double init_x = -hexSize * 5;
+	double init_y = -hexSize * 2.5;
 	
 	double x = init_x;
 	double y = init_y;
@@ -139,9 +130,9 @@ void GUI::drawBoard() {
 	int filesz = 6;
 	int counter = 0;
 	for (int rank = 0; rank < 11; rank++) {
-		rank < 6 ? x = init_x : x = init_x + sz * (rank - 5);
-		y = init_y + sz * rank;
-		if (rank > 5) y -= (sz / 2.) * (rank - 5);
+		rank < 6 ? x = init_x : x = init_x + hexSize * (rank - 5);
+		y = init_y + hexSize * rank;
+		if (rank > 5) y -= (hexSize / 2.) * (rank - 5);
 
 		for (int file = 0; file < filesz; file++) {
 			counter++;
@@ -153,20 +144,32 @@ void GUI::drawBoard() {
 			else if (std::count(light.begin(), light.end(), counter) != 0)
 				colour = { 0.75, 0.7, 0.7 };
 
-			drawHex(x, y, sz, colour);
-			x += sz;
-			y -= sz / 2.;
+			drawHex(x, y, colour);
+			x += hexSize;
+			y -= hexSize / 2.;
 			
 		}
 		rank < 5 ? filesz++ : filesz--;
 	}
 }
 
-void GUI::drawPiece(float x, float y, Colour c, Type t) {
+void GUI::drawPiece(Hex hex, Colour c, Type t) {
+
+	float x = hex.x_c;
+	float y = hex.y_c;
+	
 	if (t == pawn) drawPawn(x, y, c);
 	else if (t == rook) drawRook(x, y, c);
 	else if (t == bishop) drawBishop(x, y, c);
 	else if (t == knight) drawKnight(x, y, c);
 	else if (t == queen) drawQueen(x, y, c);
 	else if (t == king) drawKing(x, y, c);
+}
+
+void GUI::drawSelectedHex(Hex hex) {
+	float x = hex.x_c;
+	float y = hex.y_c;
+
+	std::vector<float> c = { 1., 0.5, 0.1 };
+	drawHex(x, y, c);
 }
