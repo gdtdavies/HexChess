@@ -53,25 +53,25 @@ void display() {
 	
 	gui.drawBoard();
 	
-	for (int sq = 0; sq < 91; sq++) {
-		if (!Occupied.test(sq)) continue;
+	for (int hex = 0; hex < 91; hex++) {
+		if (!Occupied.test(hex)) continue;
 
 
-		float x = gui.hexes[sq].x_c;
-		float y = gui.hexes[sq].y_c;
+		float x = gui.hexes[hex].x_c;
+		float y = gui.hexes[hex].y_c;
 
-		if (Wpawns.test(sq)) gui.drawPiece(x, y, white, pawn);
-		else if (Bpawns.test(sq)) gui.drawPiece(x, y, black, pawn);
-		else if (Wrooks.test(sq)) gui.drawPiece(x, y, white, rook);
-		else if (Brooks.test(sq)) gui.drawPiece(x, y, black, rook);
-		else if (Wknights.test(sq)) gui.drawPiece(x, y, white, knight);
-		else if (Bknights.test(sq)) gui.drawPiece(x, y, black, knight);
-		else if (Wbishops.test(sq)) gui.drawPiece(x, y, white, bishop);
-		else if (Bbishops.test(sq)) gui.drawPiece(x, y, black, bishop);
-		else if (Wqueens.test(sq)) gui.drawPiece(x, y, white, queen);
-		else if (Bqueens.test(sq)) gui.drawPiece(x, y, black, queen);
-		else if (Wking.test(sq)) gui.drawPiece(x, y, white, king);
-		else if (Bking.test(sq)) gui.drawPiece(x, y, black, king);
+		if (Wpawns.test(hex)) gui.drawPiece(x, y, white, pawn);
+		else if (Bpawns.test(hex)) gui.drawPiece(x, y, black, pawn);
+		else if (Wrooks.test(hex)) gui.drawPiece(x, y, white, rook);
+		else if (Brooks.test(hex)) gui.drawPiece(x, y, black, rook);
+		else if (Wknights.test(hex)) gui.drawPiece(x, y, white, knight);
+		else if (Bknights.test(hex)) gui.drawPiece(x, y, black, knight);
+		else if (Wbishops.test(hex)) gui.drawPiece(x, y, white, bishop);
+		else if (Bbishops.test(hex)) gui.drawPiece(x, y, black, bishop);
+		else if (Wqueens.test(hex)) gui.drawPiece(x, y, white, queen);
+		else if (Bqueens.test(hex)) gui.drawPiece(x, y, black, queen);
+		else if (Wking.test(hex)) gui.drawPiece(x, y, white, king);
+		else if (Bking.test(hex)) gui.drawPiece(x, y, black, king);
 	}
 
 	glDisable(GL_BLEND);

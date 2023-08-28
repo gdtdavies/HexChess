@@ -109,10 +109,14 @@ void GUI::drawQueen(float x, float y, Colour c) {
 }
 void GUI::drawKing(float x, float y, Colour c) {
 	double sz = (hexSize * 0.5) / (screenWidth < screenHeight ? screenWidth : screenHeight);
-	drawLine(x - sz / 2, y - sz / 2, x + sz / 2, y - sz / 2, c);
-	drawLine(x + sz / 2, y - sz / 2, x + sz / 2, y + sz / 2, c);
-	drawLine(x + sz / 2, y + sz / 2, x - sz / 2, y + sz / 2, c);
-	drawLine(x - sz / 2, y + sz / 2, x - sz / 2, y - sz / 2, c);
+
+	drawLine(x - sz / 3.0, y + sz / 2., x + sz / 3.0, y + sz / 2., c);
+	drawLine(x + sz / 3.0, y + sz / 2., x + sz / 1.5, y, c);
+	drawLine(x + sz / 1.5, y, x + sz / 3.0, y - sz / 2., c);
+	drawLine(x + sz / 3.0, y - sz / 2., x - sz / 3.0, y - sz / 2., c);
+	drawLine(x - sz / 3.0, y - sz / 2, x - sz / 1.5, y, c);
+	drawLine(x - sz / 1.5, y, x - sz / 3.0, y + sz / 2., c);
+
 }
 
 //-public-------
