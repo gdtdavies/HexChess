@@ -1,5 +1,6 @@
 #include<iostream>
 #include<string>
+#include<tuple>
 
 using namespace std;
 
@@ -110,18 +111,18 @@ void mouseCallback(int button, int state, int x, int y) {
 		if (!isInside_hex(hex.xcoords, hex.ycoords, x, y)) continue;
 		//cout << "Hexagon " << hex.id << " clicked" << endl;
 
-		if (Rank01.test(hex.id)) cout << "rank 1" << endl;
-		if (Rank06.test(hex.id)) cout << "rank 6" << endl;
-		if (Rank11.test(hex.id)) cout << "rank 11" << endl;
+		//if (Rank01.test(hex.id)) cout << "rank 1" << endl;
+		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
+		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
 
 		if (selectedHex == none) {
 			selectedHex = static_cast<Hexagon>(hex.id);
-			//cout << "selected hexagon " << hex.id << endl;
+			cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 		else if (selectedHex == hex.id) {
 			selectedHex = none;
-			//cout << "deselected hexagon " << hex.id << endl;
+			cout << "deselected hexagon " << hex.id << endl;
 			return;
 		}
 		else {
@@ -131,7 +132,7 @@ void mouseCallback(int button, int state, int x, int y) {
 			//else 
 			//		do nothing
 			selectedHex = static_cast<Hexagon>(hex.id);
-			//cout << "selected hexagon " << hex.id << endl;
+			cout << "selected hexagon " << hex.id << endl;
 			return;
 		}
 
@@ -145,19 +146,44 @@ void mouseCallback(int button, int state, int x, int y) {
 
 //=Misc===========||==================||==================||==================||==================>>
 
-bool isInside_tri(float x1, float y1, float x2, float y2, float x3, float y3, int x, int y)
-{
-	float a  = abs((x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2)) / 2.0);
-	float a1 = abs((x *(y2 - y3) + x2*(y3 - y ) + x3*(y  - y2)) / 2.0);
-	float a2 = abs((x1*(y  - y3) + x *(y3 - y1) + x3*(y1 - y )) / 2.0);
-	float a3 = abs((x1*(y2 - y ) + x2*(y  - y1) + x *(y1 - y2)) / 2.0);
-
-	return (a == a1 + a2 + a3);
+int orientation(tuple<float, float> p, tuple<float, float> q, tuple<float, float> r) {
+	//returns the side the point r is on relative to the pq segment
+	double val = (get<1>(q) - get<1>(p)) * (get<0>(r) - get<0>(q)) - (get<0>(q) - get<0>(p)) * (get<1>(r) - get<1>(q));
+	return val == 0 ? 0 : val > 0 ? 1 : 2; 
 }
-bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
-	return (xcoords[0] < x && x < xcoords[3] && ycoords[0] < y && y < ycoords[3])
-		|| (isInside_tri(xcoords[0], ycoords[0], xcoords[1], ycoords[1], xcoords[2], ycoords[2], x, y))
-		|| (isInside_tri(xcoords[3], ycoords[3], xcoords[4], ycoords[4], xcoords[5], ycoords[5], x, y));
+
+bool isIntersection(tuple<float, float> p1, tuple<float, float> q1, tuple<float, float> p2, tuple<float, float> q2) {
+	int o1 = orientation(p1, q1, p2);
+	int o2 = orientation(p1, q1, q2);
+	int o3 = orientation(p2, q2, p1);
+	int o4 = orientation(p2, q2, q1);
+
+	return (o1 != o2 && o3 != o4);
+}
+
+bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {	
+	tuple<float, float> click = make_tuple(x, y);
+	
+	tuple<float, float> down = make_tuple(x, y - 100);
+	tuple<float, float> up = make_tuple(x, y + 100);
+
+	tuple<float, float> left = make_tuple(x - 100, y);
+	tuple<float, float> right = make_tuple(x + 100, y);
+
+	tuple<float, float> p0 = make_tuple(xcoords[0], ycoords[0]);
+	tuple<float, float> p1 = make_tuple(xcoords[1], ycoords[1]);
+	tuple<float, float> p2 = make_tuple(xcoords[2], ycoords[2]);
+	tuple<float, float> p3 = make_tuple(xcoords[3], ycoords[3]);
+	tuple<float, float> p4 = make_tuple(xcoords[4], ycoords[4]);
+	tuple<float, float> p5 = make_tuple(xcoords[5], ycoords[5]);
+
+	if (!isIntersection(click, left, p0, p1) && !isIntersection(click, left, p1, p2)) return false;
+	if (!isIntersection(click, right, p3, p4) && !isIntersection(click, right, p4, p5)) return false;
+
+	if (!isIntersection(click, up, p1, p2) && !isIntersection(click, up, p2, p3) && !isIntersection(click, up, p3, p4)) return false;
+	if (!isIntersection(click, down, p4, p5) && !isIntersection(click, down, p5, p0) && !isIntersection(click, down, p0, p1)) return false;
+
+	return true;	
 }
 
 //=Moving=========||==================||==================||==================||==================>>
