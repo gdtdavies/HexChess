@@ -48,6 +48,7 @@ void init() {
 
 	LuBB.setPawnMoves();
 	LuBB.setPawnAttacks();
+	LuBB.setKnightAttacks();
 }
 
 void display() {
@@ -63,9 +64,6 @@ void display() {
 	//displaying the selected hex
 	if (selectedHex != none) {
 		gui.drawSelectedHex(gui.hexes[selectedHex]);
-		if (Wpawns.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), Occupied);
-		}
 	}
 	
 	//displaying the pieces
@@ -86,6 +84,16 @@ void display() {
 		else if (Bqueens.test(i))  gui.drawPiece(hex, black, queen);
 		else if (Wking.test(i))    gui.drawPiece(hex, white, king);
 		else if (Bking.test(i))    gui.drawPiece(hex, black, king);
+	}
+
+	if (selectedHex != none) {
+		if (Wpawns.test(selectedHex) || Bpawns.test(selectedHex)){
+			gui.drawAttacks(LuBB.getPawnMoves(selectedHex, turn), Occupied);
+			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), Occupied);
+		}
+		else if (Wknights.test(selectedHex) || Bknights.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getKnightAttacks(selectedHex), Occupied);
+		}
 	}
 
 	glDisable(GL_BLEND);
@@ -309,8 +317,9 @@ int main(int argc, char** argv) {
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
 
-	loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
-	//loadFromFen("6/pPpPpPp/8/PpPpPpPpP/10/pPpPpPpPpPp/10/PpPpPpPpP/8/pPpPpPp/6 w - 0 1");
+	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
+	//loadFromFen("pppppp/ppppppp/pppppppp/ppppppppp/pppppppppp/ppppppppppp/pppppppppp/ppppppppp/pppppppp/ppppppp/pppppp w - 0 1");
+	loadFromFen("nnnnnn/nnnnnnn/nnnnnnnn/nnnnnnnnn/nnnnnnnnnn/nnnnnnnnnnn/nnnnnnnnnn/nnnnnnnnn/nnnnnnnn/nnnnnnn/nnnnnn w - 0 1");
 
 	init();
 	glutDisplayFunc(display);

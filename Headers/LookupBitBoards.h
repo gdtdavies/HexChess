@@ -9,8 +9,8 @@ class LookupBitboard {
 private:
 	bitset<92> WpawnMoves[91], BpawnMoves[91];
 	bitset<92> WpawnAttacks[91], BpawnAttacks[91];
-	bitset<92> WknightAttacks[91], BknightAttacks[91];
-	bitset<92> WkingAttacks[91], BkingAttacks[91];
+	bitset<92> knightAttacks[91];
+	bitset<92> kingAttacks[91];
 
 	bitset<92> rayAttacks[12][91];
 	const enum Direction : int {
@@ -36,14 +36,14 @@ public:
 	bitset<92> getPawnMoves(Tile pos, Colour c);
 	bitset<92> getPawnAttacks(Tile pos, Colour c);
 
-	//void setKnightAttacks();
-	//bitset<92> getKnightAttacks(Tile pos, Colour c);
-	//
+	void setKnightAttacks();
+	bitset<92> getKnightAttacks(Tile pos);
+	
 	//void setKingAttacks();
-	//bitset<92> getKingAttacks(Tile pos, Colour c);
+	//bitset<92> getKingAttacks(Tile pos);
 	//
 	//void setRayAttacks();
-	//bitset<92> getRookAttacks(Tile pos, Colour c);
-	//bitset<92> getBishopAttacks(Tile pos, Colour c);
-	//bitset<92> getQueenAttacks(Tile pos, Colour c);
+	//bitset<92> getRookAttacks(Tile pos);
+	//bitset<92> getBishopAttacks(Tile pos);
+	//bitset<92> getQueenAttacks(Tile pos);
 };

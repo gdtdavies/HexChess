@@ -103,13 +103,166 @@ bitset<92> LookupBitboard::getPawnAttacks(Tile pos, Colour c) {
 	return c == white ? WpawnAttacks[pos] : BpawnAttacks[pos];
 }
 
-//void LookupBitboard::setKnightAttacks(){}
-//bitset<92> LookupBitboard::getKnightAttacks(Tile pos, Colour c){}
-//
+
+void LookupBitboard::setKnightAttacks() {
+	vector<int> file1      = { 0,  6, 13, 21, 30, 40, 51, 61, 70, 78, 85 };
+	vector<int> file1_rank = { 0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5 };
+	vector<int> rankEnds   = { 5, 12, 20, 29, 39, 50, 60, 69, 77, 84, 90 };
+
+	for (int i = 0; i < 91; i++) {
+		vector<int> attacks;
+
+		int rank = -1;
+		for (int f : file1) {
+			if (i >= f) rank++;
+		}
+
+		int temp = i;
+		while (count(file1.begin(), file1.end(), temp) == 0)
+			temp--;
+		int file = i - temp + file1_rank[rank];
+		
+		// SW SW NW = rank - 2 & file - 3
+		if (rank >= 2 && file >= 3) {
+			if (!(file - file1_rank[rank] == 0 && i >= 70)) {
+				int new_rank = rank - 2;
+				int new_file = file - 3 - file1_rank[new_rank];
+				int new_i = file1[new_rank] + new_file;
+
+				if (new_i <= rankEnds[new_rank])
+					attacks.push_back(new_i);
+			}
+		}
+		// NW NW SW = rank - 1 & file - 3
+		if (rank >= 1 && file >= 3) {
+			if (!(file - file1_rank[rank] == 0 && i >= 70) &&
+				 !(file - file1_rank[rank] == 1 && i >= 62)) {
+				int new_rank = rank - 1;
+				int new_file = file - 3 - file1_rank[new_rank];
+				int new_i = file1[new_rank] + new_file;
+
+				if (new_i <= rankEnds[new_rank])
+					attacks.push_back(new_i);
+			}
+		}
+		// NW NW N  = rank + 1 & file - 2
+		if (rank <= 10 - 1 && file >= 2) {
+			if (!(file - file1_rank[rank] == 0 && i >= 61) &&
+				 !(file - file1_rank[rank] == 1 && i >= 52) &&
+				 !(file - file1_rank[rank] == 2 && i >= 42)) {
+				int new_rank = rank + 1;
+				int new_file = file - 2 - file1_rank[new_rank];
+				int new_i = file1[new_rank] + new_file;
+
+				if (new_i <= rankEnds[new_rank])
+					attacks.push_back(new_i);
+			}
+		}
+		// N N NW   = rank + 2 & file - 1
+		if (rank <= 10 - 2 && file >= 1) {
+			if (!(file - file1_rank[rank] == 0 && i >= 51) &&
+				 !(file - file1_rank[rank] == 1 && i >= 41) &&
+				 !(file - file1_rank[rank] == 2 && i >= 42)) {
+				int new_rank = rank + 2;
+				int new_file = file - 1 - file1_rank[new_rank];
+				int new_i = file1[new_rank] + new_file;
+
+				if (new_i <= rankEnds[new_rank])
+					attacks.push_back(new_i);
+			}
+		}
+		// N N NE   = rank + 3 & file + 1
+		if (rank <= 10 - 3 && file <= 10 - 1) {
+			if (!(file - file1_rank[rank] == 0 && i >= 30) &&
+				 !(file - file1_rank[rank] == 1 && i >= 31) &&
+				 !(file - file1_rank[rank] == 2 && i >= 42)) {
+				int new_rank = rank + 3;
+				int new_file = file + 1 - file1_rank[new_rank];
+				int new_i = file1[new_rank] + new_file;
+
+				if (new_i <= rankEnds[new_rank])
+					attacks.push_back(new_i);
+			}
+		}
+		// NE NE N  = rank + 3 & file + 2
+		if (rank <= 10 - 3 && file <= 10 - 2) {
+			if (!(file - file1_rank[rank] == 0 && i >= 40)) {
+				int new_rank = rank + 3;
+				int new_file = file + 2 - file1_rank[new_rank];
+				int new_i = file1[new_rank] + new_file;
+
+				if (new_i <= rankEnds[new_rank])
+					attacks.push_back(new_i);
+			}
+		}
+		// NE NE SE = rank + 2 & file + 3
+		if (rank <= 10 - 2 && file <= 10 - 3) {
+			int new_rank = rank + 2;
+			int new_file = file + 3 - file1_rank[new_rank];
+			int new_i = file1[new_rank] + new_file;
+
+			if (new_i <= rankEnds[new_rank])
+				attacks.push_back(new_i);
+		}
+		// SE SE NE = rank + 1 & file + 3
+		if (rank <= 10 - 1 && file <= 10 - 3) {
+			int new_rank = rank + 1;
+			int new_file = file + 3 - file1_rank[new_rank];
+			int new_i = file1[new_rank] + new_file;
+
+			if (new_i <= rankEnds[new_rank])
+				attacks.push_back(new_i);
+		}
+		// SE SE S  = rank - 1 & file + 2
+		if (rank >= 1 && file <= 10 - 2) {
+			int new_rank = rank - 1;
+			int new_file = file + 2 - file1_rank[new_rank];
+			int new_i = file1[new_rank] + new_file;
+
+			if (new_i <= rankEnds[new_rank])
+				attacks.push_back(new_i);
+		}
+		// S S SE   = rank - 2 & file + 1
+		if (rank >= 2 && file <= 10 - 1) {
+			int new_rank = rank - 2;
+			int new_file = file + 1 - file1_rank[new_rank];
+			int new_i = file1[new_rank] + new_file;
+
+			if (new_i <= rankEnds[new_rank])
+				attacks.push_back(new_i);
+		}
+		// S S SW   = rank - 3 & file - 1
+		if (rank >= 3 && file >= 1) {
+			int new_rank = rank - 3;
+			int new_file = file - 1 - file1_rank[new_rank];
+			int new_i = file1[new_rank] + new_file;
+
+			if (new_i <= rankEnds[new_rank])
+				attacks.push_back(new_i);
+		}
+		// SW SW S  = rank - 3 & file - 2
+		if (rank >= 3 && file >= 2) {
+			int new_rank = rank - 3;
+			int new_file = file - 2 - file1_rank[new_rank];
+			int new_i = file1[new_rank] + new_file;
+
+			if (new_i <= rankEnds[new_rank])
+				attacks.push_back(new_i);
+		}
+
+		for (int attack : attacks)
+			knightAttacks[i].set(attack);
+	}
+}
+
+bitset<92> LookupBitboard::getKnightAttacks(Tile pos){
+	return knightAttacks[pos];
+}
+
 //void LookupBitboard::setKingAttacks(){}
-//bitset<92> LookupBitboard::getKingAttacks(Tile pos, Colour c){}
+//bitset<92> LookupBitboard::getKingAttacks(Tile pos){}
 //
 //void LookupBitboard::setRayAttacks(){}
-//bitset<92> LookupBitboard::getRookAttacks(Tile pos, Colour c){}
-//bitset<92> LookupBitboard::getBishopAttacks(Tile pos, Colour c){}
-//bitset<92> LookupBitboard::getQueenAttacks(Tile pos, Colour c){}
+//bitset<92> LookupBitboard::getRookAttacks(Tile pos){}
+//bitset<92> LookupBitboard::getBishopAttacks(Tile pos){}
+//bitset<92> LookupBitboard::getQueenAttacks(Tile pos){}
