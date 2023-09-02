@@ -67,6 +67,17 @@ void display() {
 	//displaying the selected hex
 	if (selectedHex != none) {
 		gui.drawSelectedHex(gui.hexes[selectedHex]);
+		
+		if (bb.Wpawns.test(selectedHex) || bb.Bpawns.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getPawnMoves(selectedHex, turn), bb.Occupied);
+			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), bb.Occupied);
+		}
+		else if (bb.Wknights.test(selectedHex) || bb.Bknights.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getKnightAttacks(selectedHex), bb.Occupied);
+		}
+		else if (bb.Wking.test(selectedHex) || bb.Bking.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getKingAttacks(selectedHex), bb.Occupied);
+		}
 	}
 	
 	//displaying the pieces
@@ -87,19 +98,6 @@ void display() {
 		else if (bb.Bqueens.test(i))  gui.drawPiece(hex, black, queen);
 		else if (bb.Wking.test(i))    gui.drawPiece(hex, white, king);
 		else if (bb.Bking.test(i))    gui.drawPiece(hex, black, king);
-	}
-
-	if (selectedHex != none) {
-		if (bb.Wpawns.test(selectedHex) || bb.Bpawns.test(selectedHex)){
-			gui.drawAttacks(LuBB.getPawnMoves(selectedHex, turn), bb.Occupied);
-			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), bb.Occupied);
-		}
-		else if (bb.Wknights.test(selectedHex) || bb.Bknights.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getKnightAttacks(selectedHex), bb.Occupied);
-		}
-		else if (bb.Wking.test(selectedHex) || bb.Bking.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getKingAttacks(selectedHex), bb.Occupied);
-		}
 	}
 
 	glDisable(GL_BLEND);

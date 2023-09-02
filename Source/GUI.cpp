@@ -1,6 +1,5 @@
 #include "../Headers/GUI.h"
 #include "../Headers/Hex.h"
-#include "../Headers/Bitboards.h"
 
 #include <iostream>
 #include <vector>
@@ -107,12 +106,9 @@ void GUI::drawBoard() {
 			if (file % 2 == 0 && rank == 10) continue;
 			std::vector<float> colour;
 			
-			if (bb.DarkHexes.test(counter))
-				colour = { 0.25, 0.2, 0.2 };
-			else if (bb.MedHexes.test(counter)) 
-				colour = { 0.5, 0.45, 0.45 };
-			else if (bb.LightHexes.test(counter))
-				colour = { 0.75, 0.7, 0.7 };
+			if      (bb.DarkHexes.test(counter)) colour  = { 0.25, 0.2,  0.2  };
+			else if (bb.MedHexes.test(counter)) colour   = { 0.5,  0.45, 0.45 };
+			else if (bb.LightHexes.test(counter)) colour = { 0.75, 0.7,  0.7  };
 			
 			if (!bb.SkipHexes.test(counter)) 
 				drawHex(x, y, colour);
@@ -176,16 +172,12 @@ void GUI::drawAttacks(std::bitset<115> attacks, std::bitset<115> occupied) {
 
 		double cx = hexes[i].x_c;
 		double cy = hexes[i].y_c;
-
-		glBegin(GL_LINE_LOOP);
-
-		occupied.test(i) ? glColor3f(0.75f, 0.0f, 0.0f): glColor3f(0.0f, 0.75f, 0.0f);
-		for (int j = 0; j < 20; j++) {
-			float theta = 2.0f * 3.1415926f * float(j) / float(20);//get the current angle 
-			float x = pieceSize / 2 * cosf(theta);//calculate the x component 
-			float y = pieceSize / 2 * sinf(theta);//calculate the y component 
-			glVertex2f(x + cx, y + cy);//output vertex 
-		}
-		glEnd();
+		
+		if (bb.DarkHexes.test(i))
+			occupied.test(i) ? drawHex(cx, cy, { 0.25, 0.05, 0.05 }) : drawHex(cx, cy, { 0.05, 0.2,  0.05 });
+		else if (bb.MedHexes.test(i))
+			occupied.test(i) ? drawHex(cx, cy, { 0.5,  0.1,  0.1  }) : drawHex(cx, cy, { 0.1,  0.45, 0.1  });
+		else if (bb.LightHexes.test(i))
+			occupied.test(i) ? drawHex(cx, cy, { 0.75, 0.15, 0.15 }) : drawHex(cx, cy, { 0.15, 0.7,  0.15 });
 	}
 }
