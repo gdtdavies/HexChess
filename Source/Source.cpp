@@ -14,13 +14,15 @@ using namespace std;
 #include "GL\freeglut.h"
 //--------------
 
+#include "../Headers/Bitboards.h"
+BitBoard bb;
+
 #include "../Headers/LookupBitboards.h"
 #include "../Headers/Enums.h"
 
 
 glm::mat4 ViewMatrix, ProjectionMatrix;
 
-#include "../Headers/Bitboards.h"
 #include "../Headers/GUI.h"
 GUI gui;
 LookupBitboard LuBB;
@@ -49,6 +51,7 @@ void init() {
 	LuBB.setPawnMoves();
 	LuBB.setPawnAttacks();
 	LuBB.setKnightAttacks();
+	LuBB.setKingAttacks();
 }
 
 void display() {
@@ -67,32 +70,35 @@ void display() {
 	}
 	
 	//displaying the pieces
-	for (int i = 0; i < 91; i++) {
-		if (!Occupied.test(i)) continue;
+	for (int i = 0; i < gui.hexes.size(); i++) {
+		if (!bb.Occupied.test(i)) continue;
 
 		Hex hex = gui.hexes[i];
 
-		if      (Wpawns.test(i))   gui.drawPiece(hex, white, pawn);
-		else if (Bpawns.test(i))   gui.drawPiece(hex, black, pawn);
-		else if (Wrooks.test(i))   gui.drawPiece(hex, white, rook);
-		else if (Brooks.test(i))   gui.drawPiece(hex, black, rook);
-		else if (Wknights.test(i)) gui.drawPiece(hex, white, knight);
-		else if (Bknights.test(i)) gui.drawPiece(hex, black, knight);
-		else if (Wbishops.test(i)) gui.drawPiece(hex, white, bishop);
-		else if (Bbishops.test(i)) gui.drawPiece(hex, black, bishop);
-		else if (Wqueens.test(i))  gui.drawPiece(hex, white, queen);
-		else if (Bqueens.test(i))  gui.drawPiece(hex, black, queen);
-		else if (Wking.test(i))    gui.drawPiece(hex, white, king);
-		else if (Bking.test(i))    gui.drawPiece(hex, black, king);
+		if      (bb.Wpawns.test(i))   gui.drawPiece(hex, white, pawn);
+		else if (bb.Bpawns.test(i))   gui.drawPiece(hex, black, pawn);
+		else if (bb.Wrooks.test(i))   gui.drawPiece(hex, white, rook);
+		else if (bb.Brooks.test(i))   gui.drawPiece(hex, black, rook);
+		else if (bb.Wknights.test(i)) gui.drawPiece(hex, white, knight);
+		else if (bb.Bknights.test(i)) gui.drawPiece(hex, black, knight);
+		else if (bb.Wbishops.test(i)) gui.drawPiece(hex, white, bishop);
+		else if (bb.Bbishops.test(i)) gui.drawPiece(hex, black, bishop);
+		else if (bb.Wqueens.test(i))  gui.drawPiece(hex, white, queen);
+		else if (bb.Bqueens.test(i))  gui.drawPiece(hex, black, queen);
+		else if (bb.Wking.test(i))    gui.drawPiece(hex, white, king);
+		else if (bb.Bking.test(i))    gui.drawPiece(hex, black, king);
 	}
 
 	if (selectedHex != none) {
-		if (Wpawns.test(selectedHex) || Bpawns.test(selectedHex)){
-			gui.drawAttacks(LuBB.getPawnMoves(selectedHex, turn), Occupied);
-			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), Occupied);
+		if (bb.Wpawns.test(selectedHex) || bb.Bpawns.test(selectedHex)){
+			gui.drawAttacks(LuBB.getPawnMoves(selectedHex, turn), bb.Occupied);
+			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), bb.Occupied);
 		}
-		else if (Wknights.test(selectedHex) || Bknights.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getKnightAttacks(selectedHex), Occupied);
+		else if (bb.Wknights.test(selectedHex) || bb.Bknights.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getKnightAttacks(selectedHex), bb.Occupied);
+		}
+		else if (bb.Wking.test(selectedHex) || bb.Bking.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getKingAttacks(selectedHex), bb.Occupied);
 		}
 	}
 
@@ -139,10 +145,10 @@ void mouseCallback(int button, int state, int x, int y) {
 		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
 		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
 		
-		bitset<92> active_colour = turn == white ? Wpieces : turn == black ? Bpieces : Occupied;
+		bitset<115> active_colour = turn == white ? bb.Wpieces : turn == black ? bb.Bpieces : bb.Occupied;
 
 		if (selectedHex == none) {
-			if (!Occupied.test(hex.id)) return; //if the hex is not occupied do nothing
+			if (!bb.Occupied.test(hex.id)) return; //if the hex is not occupied do nothing
 
 			//check if the colour matches the turn
 			if (active_colour.test(hex.id))
@@ -243,13 +249,15 @@ void loadFromFen(string fen) {
 	}
 
 	//=Piece Positions=======================================================0=|
-	Wpawns.reset(); Wrooks.reset(); Wknights.reset();
-	Wbishops.reset(); Wqueens.reset(); Wking.reset();
+	bb.Wpawns.reset(); bb.Wrooks.reset(); bb.Wknights.reset();
+	bb.Wbishops.reset(); bb.Wqueens.reset(); bb.Wking.reset();
 
-	Bpawns.reset(); Brooks.reset(); Bknights.reset();
-	Bbishops.reset(); Bqueens.reset(); Bking.reset();
+	bb.Bpawns.reset(); bb.Brooks.reset(); bb.Bknights.reset();
+	bb.Bbishops.reset(); bb.Bqueens.reset(); bb.Bking.reset();
+
 	
-	int hex = 0;
+	
+	int hex = 2;
 	for (int i = 0; i < fen_info[0].length(); i++) {
 		//fen format is: "piece_pos active_colour ep_hexes half_move_counter full_move_counter"
 		char c = fen_info[0][i];
@@ -264,28 +272,31 @@ void loadFromFen(string fen) {
 			continue; 
 		}
 		
-		if (c == '/') continue;
+		if (c == '/') {
+			while (!bb.Bottom.test(hex))hex++;
+			continue;
+		}
 		//set the bit in the bitboard to 1
-		c == 'p' ? Wpawns.set(hex)
-			: c == 'P' ? Bpawns.set(hex)
-			: c == 'r' ? Wrooks.set(hex)
-			: c == 'R' ? Brooks.set(hex)
-			: c == 'n' ? Wknights.set(hex)
-			: c == 'N' ? Bknights.set(hex)
-			: c == 'b' ? Wbishops.set(hex)
-			: c == 'B' ? Bbishops.set(hex)
-			: c == 'q' ? Wqueens.set(hex)
-			: c == 'Q' ? Bqueens.set(hex)
-			: c == 'k' ? Wking.set(hex)
-			: c == 'K' ? Bking.set(hex)
+		c == 'p' ? bb.Wpawns.set(hex)
+			: c == 'P' ? bb.Bpawns.set(hex)
+			: c == 'r' ? bb.Wrooks.set(hex)
+			: c == 'R' ? bb.Brooks.set(hex)
+			: c == 'n' ? bb.Wknights.set(hex)
+			: c == 'N' ? bb.Bknights.set(hex)
+			: c == 'b' ? bb.Wbishops.set(hex)
+			: c == 'B' ? bb.Bbishops.set(hex)
+			: c == 'q' ? bb.Wqueens.set(hex)
+			: c == 'Q' ? bb.Bqueens.set(hex)
+			: c == 'k' ? bb.Wking.set(hex)
+			: c == 'K' ? bb.Bking.set(hex)
 			: __noop;
 		hex++;
 	}
 
-	Wpieces = Wpawns | Wrooks | Wknights | Wbishops | Wqueens | Wking;
-	Bpieces = Bpawns | Brooks | Bknights | Bbishops | Bqueens | Bking;
+	bb.Wpieces = bb.Wpawns | bb.Wrooks | bb.Wknights | bb.Wbishops | bb.Wqueens | bb.Wking;
+	bb.Bpieces = bb.Bpawns | bb.Brooks | bb.Bknights | bb.Bbishops | bb.Bqueens | bb.Bking;
 
-	Occupied = Wpieces | Bpieces;
+	bb.Occupied = bb.Wpieces | bb.Bpieces;
 	
 
 	//=Active Colour=========================================================1=|
@@ -317,9 +328,11 @@ int main(int argc, char** argv) {
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
 
+	loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
 	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
 	//loadFromFen("pppppp/ppppppp/pppppppp/ppppppppp/pppppppppp/ppppppppppp/pppppppppp/ppppppppp/pppppppp/ppppppp/pppppp w - 0 1");
-	loadFromFen("nnnnnn/nnnnnnn/nnnnnnnn/nnnnnnnnn/nnnnnnnnnn/nnnnnnnnnnn/nnnnnnnnnn/nnnnnnnnn/nnnnnnnn/nnnnnnn/nnnnnn w - 0 1");
+	//loadFromFen("nnnnnn/nnnnnnn/nnnnnnnn/nnnnnnnnn/nnnnnnnnnn/nnnnnnnnnnn/nnnnnnnnnn/nnnnnnnnn/nnnnnnnn/nnnnnnn/nnnnnn w - 0 1");
+	//loadFromFen("kkkkkk/kkkkkkk/kkkkkkkk/kkkkkkkkk/kkkkkkkkkk/kkkkkkkkkkk/kkkkkkkkkk/kkkkkkkkk/kkkkkkkk/kkkkkkk/kkkkkk w - 0 1");
 
 	init();
 	glutDisplayFunc(display);

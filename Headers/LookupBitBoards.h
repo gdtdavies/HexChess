@@ -7,15 +7,15 @@ using namespace std;
 
 class LookupBitboard {
 private:
-	bitset<92> WpawnMoves[91], BpawnMoves[91];
-	bitset<92> WpawnAttacks[91], BpawnAttacks[91];
-	bitset<92> knightAttacks[91];
-	bitset<92> kingAttacks[91];
+	bitset<115> WpawnMoves[115], BpawnMoves[115];
+	bitset<115> WpawnAttacks[115], BpawnAttacks[115];
+	bitset<115> knightAttacks[115];
+	bitset<115> kingAttacks[115];
 
-	bitset<92> rayAttacks[12][91];
+	bitset<115> rayAttacks[12][115];
 	const enum Direction : int {
-		EdgeNW, EdgeN, EdgeNE, EdgeSE, EdgeS, EdgeSW,
-		CornerW, CornerNW, CornerNE, CornerE, CornerSE, CornerSW
+		EdgeNW = -10, EdgeN = 1, EdgeNE = 11, EdgeSE = 10, EdgeS = -1, EdgeSW = -11,
+		CornerW = -21, CornerNW = -9, CornerNE = 12, CornerE = 21, CornerSE = 9, CornerSW = -12
 	};
 
 	//bool isNegative(int dir);
@@ -32,16 +32,24 @@ private:
 
 public:
 	void setPawnAttacks();
+	inline bitset<115> getPawnAttacks(Tile pos, Colour c) {
+		return c == Colour::white ? WpawnAttacks[pos] : BpawnAttacks[pos];
+	}
 	void setPawnMoves();
-	bitset<92> getPawnMoves(Tile pos, Colour c);
-	bitset<92> getPawnAttacks(Tile pos, Colour c);
+	inline bitset<115> getPawnMoves(Tile pos, Colour c) {
+		return c == Colour:: white ? WpawnMoves[pos] : BpawnMoves[pos];
+	}
 
 	void setKnightAttacks();
-	bitset<92> getKnightAttacks(Tile pos);
+	inline bitset<115> getKnightAttacks(Tile pos) {
+		return knightAttacks[pos];
+	}
 	
-	//void setKingAttacks();
-	//bitset<92> getKingAttacks(Tile pos);
-	//
+	void setKingAttacks();
+	inline bitset<115> getKingAttacks(Tile pos) {
+		return kingAttacks[pos];
+	}
+	
 	//void setRayAttacks();
 	//bitset<92> getRookAttacks(Tile pos);
 	//bitset<92> getBishopAttacks(Tile pos);

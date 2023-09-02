@@ -22,246 +22,128 @@
 //-public methods-------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-
 void LookupBitboard::setPawnMoves() {
-	vector<int> Wskips = { 2, 3, 4, 5, 9, 10, 11, 12, 17, 18, 19, 20, 26, 27, 28, 29, 40, 51, 61, 70, 78 };
-	vector<int> Wstart = { 1, 8, 16, 25, 35, 36, 37, 38, 39 };
+	bitset<115> skipHexes("1100000011110000000111000000001100000000010000000000000000000000000000000100000000011000000001110000000111100000011");
+	bitset<115> top      ("0010000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000010000000");
+	bitset<115> bottom   ("0000000100000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000100");
+	
+	std::bitset<115> WpawnStart("0000000000000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000000");
+	std::bitset<115> BpawnStart("0000000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000000000000");
 
-	vector<int> Bskips = { 12, 20, 29, 39, 50, 61, 62, 63, 64, 70, 71, 72, 73, 78, 79, 81, 85, 86, 87, 88 };
-	vector<int> Bstart = { 51, 52, 53, 54, 55, 65, 74, 82, 89 };
-
-	int Wmove = 6;
-	int Bmove = 6;
-	for (int i = 0; i < 91; i++) {
-		if (i == 6 || i == 13 || i == 21 || i == 30) Wmove++;
-		if (i == 51 || i == 61 || i == 70 || i == 78) Wmove--;
-		if (i == 13 || i == 21 || i == 30 || i == 40) Bmove++;
-		if (i == 61 || i == 70 || i == 78 || i == 85) Bmove--;
-
-		//white pawns
-		if (i < 85 && count(Wskips.begin(), Wskips.end(), i) == 0) {
-			WpawnMoves[i].set(i + Wmove);
-			if (count(Wstart.begin(), Wstart.end(), i) > 0) {
-				int extra = i < 35 ? Wmove * 2 + 1 : Wmove * 2;
-				WpawnMoves[i].set(i + extra);
-			}
+	for (int i = 0; i < 115; i++) {
+		if (skipHexes.test(i)) continue;
+		if (!top.test(i)) {
+			WpawnAttacks[i].set(i + 1);
+			if (WpawnStart.test(i)) 
+				WpawnMoves[i].set(i + 2);
 		}
-		//black pawns
-		if (i > 5 && count(Bskips.begin(), Bskips.end(), i) == 0) {
-			BpawnMoves[i].set(i - Bmove);
-			if (count(Bstart.begin(), Bstart.end(), i) > 0) {
-				int extra = i > 55 ? Bmove * 2 + 1 : Bmove * 2;
-				BpawnMoves[i].set(i - extra);
-			}
+		if (!bottom.test(i)) {
+			BpawnAttacks[i].set(i - 1);
+			if (BpawnStart.test(i))
+				BpawnMoves[i].set(i - 2);
 		}
 	}
+	
 }
-bitset<92> LookupBitboard::getPawnMoves(Tile pos, Colour c) {
-	return c == white ? WpawnMoves[pos] : BpawnMoves[pos];
-}
-
 void LookupBitboard::setPawnAttacks() {
-	vector<int> WleftFile = { 0, 6, 13, 21, 30, 40, 51, 61, 70, 78, 85 };
-	vector<int> WrightFile = { 50, 60, 69, 77, 84, 90, 89, 88, 87, 86, 85 };
+	bitset<115> skipHexes("1100000011110000000111000000001100000000010000000000000000000000000000000100000000011000000001110000000111100000011");
+	bitset<115> top("10000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000010000000");
+	bitset<115> bottom("100000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000100");
+	bitset<115> file1("1111111111");
+	bitset<115> file11("1111111111000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");
 
-	vector<int> BleftFile = {5, 4, 3, 2, 1, 0, 6, 13, 21, 30, 40};
-	vector<int> BrightFile = {5, 12, 20, 29, 39, 50, 60, 69, 77, 84, 90};
+	std::bitset<115> WpawnStart("0000000000000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000000");
+	std::bitset<115> BpawnStart("0000000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000000000000");
 
-	vector<int> Wskips = { 2, 3, 4, 5, 9, 10, 11, 12, 17, 18, 19, 20, 26, 27, 28, 29, 40, 51, 61, 70, 78 };
-	vector<int> Bskips = { 12, 20, 29, 39, 50, 61, 62, 63, 64, 70, 71, 72, 73, 78, 79, 81, 85, 86, 87, 88 };
-
-
-	int Wmove = 7;
-	int Bmove = 7;
-	for (int i = 0; i < 91; i++) {
-		if (i == 6 || i == 13 || i == 21 || i == 30) Wmove++;
-		if (i == 51 || i == 61 || i == 70 || i == 78) Wmove--;
-		if (i == 13 || i == 21 || i == 30 || i == 40) Bmove++;
-		if (i == 61 || i == 70 || i == 78 || i == 85) Bmove--;
-
-		if (i < 85 && count(Wskips.begin(), Wskips.end(), i) == 0) {
-			if (count(WleftFile.begin(), WleftFile.end(), i) == 0) 
-				WpawnAttacks[i].set(i - 1);
-			if (count(WrightFile.begin(), WrightFile.end(), i) == 0) 
-				WpawnAttacks[i].set(i + Wmove);
+	for (int i = 0; i < 115; i++) {
+		if (skipHexes.test(i)) continue;
+		
+		if (!top.test(i)) {
+			if (!file1.test(i))
+				WpawnAttacks[i].set(i - 10);
+			if (!file11.test(i))
+				WpawnAttacks[i].set(i + 11);
 		}
-
-		if (i > 5 && count(Bskips.begin(), Bskips.end(), i) == 0) {
-			if (count(BleftFile.begin(), BleftFile.end(), i) == 0)
-				BpawnAttacks[i].set(i - Bmove);
-			if (count(BrightFile.begin(), BrightFile.end(), i) == 0)
-				BpawnAttacks[i].set(i + 1);
+		if (!bottom.test(i)) {
+			if (!file1.test(i))
+				BpawnAttacks[i].set(i - 11);
+			if (!file11.test(i))
+				BpawnAttacks[i].set(i + 10);
 		}
-
 	}
-}
-
 	
-	
-
-bitset<92> LookupBitboard::getPawnAttacks(Tile pos, Colour c) {
-	return c == white ? WpawnAttacks[pos] : BpawnAttacks[pos];
 }
-
 
 void LookupBitboard::setKnightAttacks() {
-	vector<int> file1      = { 0,  6, 13, 21, 30, 40, 51, 61, 70, 78, 85 };
-	vector<int> file1_rank = { 0,  0,  0,  0,  0,  0,  1,  2,  3,  4,  5 };
-	vector<int> rankEnds   = { 5, 12, 20, 29, 39, 50, 60, 69, 77, 84, 90 };
-
-	for (int i = 0; i < 91; i++) {
-		vector<int> attacks;
-
-		int rank = -1;
-		for (int f : file1) {
-			if (i >= f) rank++;
-		}
-
-		int temp = i;
-		while (count(file1.begin(), file1.end(), temp) == 0)
-			temp--;
-		int file = i - temp + file1_rank[rank];
+	bitset<115> skipHexes("1100000011110000000111000000001100000000010000000000000000000000000000000100000000011000000001110000000111100000011");
+	
+	for (int i = 0; i < 115; i++) {
+		if (skipHexes.test(i)) continue;
 		
-		// SW SW NW = rank - 2 & file - 3
-		if (rank >= 2 && file >= 3) {
-			if (!(file - file1_rank[rank] == 0 && i >= 70)) {
-				int new_rank = rank - 2;
-				int new_file = file - 3 - file1_rank[new_rank];
-				int new_i = file1[new_rank] + new_file;
+		int NW_NW_SW = i + CornerW + EdgeNW;
+		if (0 < NW_NW_SW && NW_NW_SW < 115 && !skipHexes.test(NW_NW_SW))
+			knightAttacks[i].set(NW_NW_SW);
+		int SW_SW_NW = i + CornerW + EdgeSW;
+		if (0 < SW_SW_NW && SW_SW_NW < 115 && !skipHexes.test(SW_SW_NW))
+			knightAttacks[i].set(SW_SW_NW);
+		int NE_NE_SE = i + CornerE + EdgeNE;
+		if (0 < NE_NE_SE && NE_NE_SE < 115 && !skipHexes.test(NE_NE_SE))
+			knightAttacks[i].set(NE_NE_SE);
+		int SE_SE_NE = i + CornerE + EdgeSE;
+		if (0 < SE_SE_NE && SE_SE_NE < 115 && !skipHexes.test(SE_SE_NE))
+			knightAttacks[i].set(SE_SE_NE);
 
-				if (new_i <= rankEnds[new_rank])
-					attacks.push_back(new_i);
+		if (i != 52 && i != 63) {
+			if (i != 32 && i != 42 && i != 43 && i!=53) {
+				int SE_SE_S = i + CornerSE + EdgeSE;
+				if (0 < SE_SE_S && SE_SE_S < 115 && !skipHexes.test(SE_SE_S))
+					knightAttacks[i].set(SE_SE_S);
+				if (i != 54 && i != 64 && i != 74) {
+					int S_S_SE = i + CornerSE + EdgeS;
+					if (0 < S_S_SE && S_S_SE < 115 && !skipHexes.test(S_S_SE))
+						knightAttacks[i].set(S_S_SE);
+				}
+			}
+			if (i != 74 && i != 85) {
+				int SW_SW_S = i + CornerSW + EdgeSW;
+				if (0 < SW_SW_S && SW_SW_S < 115 && !skipHexes.test(SW_SW_S))
+					knightAttacks[i].set(SW_SW_S);
+				if (i != 42 && i != 53 && i != 64 && i != 75) {
+					int S_S_SW = i + CornerSW + EdgeS;
+					if (0 < S_S_SW && S_S_SW < 115 && !skipHexes.test(S_S_SW))
+						knightAttacks[i].set(S_S_SW);
+				}
 			}
 		}
-		// NW NW SW = rank - 1 & file - 3
-		if (rank >= 1 && file >= 3) {
-			if (!(file - file1_rank[rank] == 0 && i >= 70) &&
-				 !(file - file1_rank[rank] == 1 && i >= 62)) {
-				int new_rank = rank - 1;
-				int new_file = file - 3 - file1_rank[new_rank];
-				int new_i = file1[new_rank] + new_file;
-
-				if (new_i <= rankEnds[new_rank])
-					attacks.push_back(new_i);
+		
+		if (i != 51 && i != 62) {
+			if (i != 61 && i != 71 && i != 72 && i != 82) {
+				int NW_NW_N = i + CornerNW + EdgeNW;
+				if (0 < NW_NW_N && NW_NW_N < 115 && !skipHexes.test(NW_NW_N))
+					knightAttacks[i].set(NW_NW_N);
+				if (i != 40 && i != 50 && i != 60) {
+					int N_N_NW = i + CornerNW + EdgeN;
+					if (0 < N_N_NW && N_N_NW < 115 && !skipHexes.test(N_N_NW))
+						knightAttacks[i].set(N_N_NW);
+				}
+			}
+			if (i != 29 && i != 40) {
+				int NE_NE_N = i + CornerNE + EdgeNE;
+				if (0 < NE_NE_N && NE_NE_N < 115 && !skipHexes.test(NE_NE_N))
+					knightAttacks[i].set(NE_NE_N);
+				if (i != 39 && i != 50 && i != 61 && i != 72) {
+					int N_N_NE = i + CornerNE + EdgeN;
+					if (0 < N_N_NE && N_N_NE < 115 && !skipHexes.test(N_N_NE))
+						knightAttacks[i].set(N_N_NE);
+				}
 			}
 		}
-		// NW NW N  = rank + 1 & file - 2
-		if (rank <= 10 - 1 && file >= 2) {
-			if (!(file - file1_rank[rank] == 0 && i >= 61) &&
-				 !(file - file1_rank[rank] == 1 && i >= 52) &&
-				 !(file - file1_rank[rank] == 2 && i >= 42)) {
-				int new_rank = rank + 1;
-				int new_file = file - 2 - file1_rank[new_rank];
-				int new_i = file1[new_rank] + new_file;
-
-				if (new_i <= rankEnds[new_rank])
-					attacks.push_back(new_i);
-			}
-		}
-		// N N NW   = rank + 2 & file - 1
-		if (rank <= 10 - 2 && file >= 1) {
-			if (!(file - file1_rank[rank] == 0 && i >= 51) &&
-				 !(file - file1_rank[rank] == 1 && i >= 41) &&
-				 !(file - file1_rank[rank] == 2 && i >= 42)) {
-				int new_rank = rank + 2;
-				int new_file = file - 1 - file1_rank[new_rank];
-				int new_i = file1[new_rank] + new_file;
-
-				if (new_i <= rankEnds[new_rank])
-					attacks.push_back(new_i);
-			}
-		}
-		// N N NE   = rank + 3 & file + 1
-		if (rank <= 10 - 3 && file <= 10 - 1) {
-			if (!(file - file1_rank[rank] == 0 && i >= 30) &&
-				 !(file - file1_rank[rank] == 1 && i >= 31) &&
-				 !(file - file1_rank[rank] == 2 && i >= 42)) {
-				int new_rank = rank + 3;
-				int new_file = file + 1 - file1_rank[new_rank];
-				int new_i = file1[new_rank] + new_file;
-
-				if (new_i <= rankEnds[new_rank])
-					attacks.push_back(new_i);
-			}
-		}
-		// NE NE N  = rank + 3 & file + 2
-		if (rank <= 10 - 3 && file <= 10 - 2) {
-			if (!(file - file1_rank[rank] == 0 && i >= 40)) {
-				int new_rank = rank + 3;
-				int new_file = file + 2 - file1_rank[new_rank];
-				int new_i = file1[new_rank] + new_file;
-
-				if (new_i <= rankEnds[new_rank])
-					attacks.push_back(new_i);
-			}
-		}
-		// NE NE SE = rank + 2 & file + 3
-		if (rank <= 10 - 2 && file <= 10 - 3) {
-			int new_rank = rank + 2;
-			int new_file = file + 3 - file1_rank[new_rank];
-			int new_i = file1[new_rank] + new_file;
-
-			if (new_i <= rankEnds[new_rank])
-				attacks.push_back(new_i);
-		}
-		// SE SE NE = rank + 1 & file + 3
-		if (rank <= 10 - 1 && file <= 10 - 3) {
-			int new_rank = rank + 1;
-			int new_file = file + 3 - file1_rank[new_rank];
-			int new_i = file1[new_rank] + new_file;
-
-			if (new_i <= rankEnds[new_rank])
-				attacks.push_back(new_i);
-		}
-		// SE SE S  = rank - 1 & file + 2
-		if (rank >= 1 && file <= 10 - 2) {
-			int new_rank = rank - 1;
-			int new_file = file + 2 - file1_rank[new_rank];
-			int new_i = file1[new_rank] + new_file;
-
-			if (new_i <= rankEnds[new_rank])
-				attacks.push_back(new_i);
-		}
-		// S S SE   = rank - 2 & file + 1
-		if (rank >= 2 && file <= 10 - 1) {
-			int new_rank = rank - 2;
-			int new_file = file + 1 - file1_rank[new_rank];
-			int new_i = file1[new_rank] + new_file;
-
-			if (new_i <= rankEnds[new_rank])
-				attacks.push_back(new_i);
-		}
-		// S S SW   = rank - 3 & file - 1
-		if (rank >= 3 && file >= 1) {
-			int new_rank = rank - 3;
-			int new_file = file - 1 - file1_rank[new_rank];
-			int new_i = file1[new_rank] + new_file;
-
-			if (new_i <= rankEnds[new_rank])
-				attacks.push_back(new_i);
-		}
-		// SW SW S  = rank - 3 & file - 2
-		if (rank >= 3 && file >= 2) {
-			int new_rank = rank - 3;
-			int new_file = file - 2 - file1_rank[new_rank];
-			int new_i = file1[new_rank] + new_file;
-
-			if (new_i <= rankEnds[new_rank])
-				attacks.push_back(new_i);
-		}
-
-		for (int attack : attacks)
-			knightAttacks[i].set(attack);
 	}
 }
 
-bitset<92> LookupBitboard::getKnightAttacks(Tile pos){
-	return knightAttacks[pos];
+void LookupBitboard::setKingAttacks(){
 }
 
-//void LookupBitboard::setKingAttacks(){}
-//bitset<92> LookupBitboard::getKingAttacks(Tile pos){}
-//
 //void LookupBitboard::setRayAttacks(){}
 //bitset<92> LookupBitboard::getRookAttacks(Tile pos){}
 //bitset<92> LookupBitboard::getBishopAttacks(Tile pos){}
