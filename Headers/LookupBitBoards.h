@@ -2,11 +2,13 @@
 
 #include <bitset>
 #include "Enums.h"
+#include "Bitboards.h"
 
 using namespace std;
 
 class LookupBitboard {
 private:
+	BitBoard bb;
 	bitset<115> WpawnMoves[115], BpawnMoves[115];
 	bitset<115> WpawnAttacks[115], BpawnAttacks[115];
 	bitset<115> knightAttacks[115];
