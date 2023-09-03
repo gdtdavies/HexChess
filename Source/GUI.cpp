@@ -176,8 +176,8 @@ void GUI::drawAttacks(std::bitset<115> attacks, std::bitset<115> occupied) {
 		if (bb.DarkHexes.test(i))
 			occupied.test(i) ? drawHex(cx, cy, { 0.25, 0.05, 0.05 }) : drawHex(cx, cy, { 0.05, 0.2,  0.05 });
 		else if (bb.MedHexes.test(i))
-			occupied.test(i) ? drawHex(cx, cy, { 0.5,  0.1,  0.1  }) : drawHex(cx, cy, { 0.1,  0.45, 0.1  });
+			occupied.test(i) ? drawHex(cx, cy, { 0.4,  0.1,  0.1  }) : drawHex(cx, cy, { 0.1,  0.4, 0.1  });
 		else if (bb.LightHexes.test(i))
-			occupied.test(i) ? drawHex(cx, cy, { 0.75, 0.15, 0.15 }) : drawHex(cx, cy, { 0.15, 0.7,  0.15 });
+			occupied.test(i) ? drawHex(cx, cy, { 0.75, 0.15, 0.15 }) : drawHex(cx, cy, { 0.15, 0.75,  0.15 });
 	}
 }

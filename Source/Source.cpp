@@ -52,6 +52,7 @@ void init() {
 	LuBB.setPawnAttacks();
 	LuBB.setKnightAttacks();
 	LuBB.setKingAttacks();
+	LuBB.setRayAttacks();
 }
 
 void display() {
@@ -77,6 +78,15 @@ void display() {
 		}
 		else if (bb.Wking.test(selectedHex) || bb.Bking.test(selectedHex)) {
 			gui.drawAttacks(LuBB.getKingAttacks(selectedHex), bb.Occupied);
+		}
+		else if (bb.Wrooks.test(selectedHex) || bb.Brooks.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getRayAttacks(selectedHex), bb.Occupied);
+		}
+		else if (bb.Wbishops.test(selectedHex) || bb.Bbishops.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getRayAttacks(selectedHex), bb.Occupied);
+		}
+		else if (bb.Wqueens.test(selectedHex) || bb.Bqueens.test(selectedHex)) {
+			gui.drawAttacks(LuBB.getRayAttacks(selectedHex), bb.Occupied);
 		}
 	}
 	
@@ -331,6 +341,7 @@ int main(int argc, char** argv) {
 	//loadFromFen("pppppp/ppppppp/pppppppp/ppppppppp/pppppppppp/ppppppppppp/pppppppppp/ppppppppp/pppppppp/ppppppp/pppppp w - 0 1");
 	//loadFromFen("nnnnnn/nnnnnnn/nnnnnnnn/nnnnnnnnn/nnnnnnnnnn/nnnnnnnnnnn/nnnnnnnnnn/nnnnnnnnn/nnnnnnnn/nnnnnnn/nnnnnn w - 0 1");
 	//loadFromFen("kkkkkk/kkkkkkk/kkkkkkkk/kkkkkkkkk/kkkkkkkkkk/kkkkkkkkkkk/kkkkkkkkkk/kkkkkkkkk/kkkkkkkk/kkkkkkk/kkkkkk w - 0 1");
+	//loadFromFen("qqqqqq/qqqqqqq/qqqqqqqq/qqqqqqqqq/qqqqqqqqqq/qqqqqqqqqqq/qqqqqqqqqq/qqqqqqqqq/qqqqqqqq/qqqqqqq/qqqqqq w - 0 1");
 
 	init();
 	glutDisplayFunc(display);

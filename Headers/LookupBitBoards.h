@@ -14,23 +14,23 @@ private:
 	bitset<115> knightAttacks[115];
 	bitset<115> kingAttacks[115];
 
-	bitset<115> rayAttacks[12][115];
+	bitset<115> rayAttacks[115][12];
 	const enum Direction : int {
 		EdgeNW = -10, EdgeN = 1, EdgeNE = 11, EdgeSE = 10, EdgeS = -1, EdgeSW = -11,
 		CornerW = -21, CornerNW = -9, CornerNE = 12, CornerE = 21, CornerSE = 9, CornerSW = -12
 	};
 
 	//bool isNegative(int dir);
-	//int bitScan(bitset<92> mask, bool isNegative);
-	//bitset<92> getRayAttacks(bitset<92> occupied, Direction dir, Tile hex);
+	//int bitScan(bitset<115> mask, bool isNegative);
+	//bitset<115> getRayAttacks(bitset<115> occupied, Direction dir, Tile hex);
 	//
-	//bitset<92> cornerAttacks1(bitset<92> occupied, Tile hex);
-	//bitset<92> cornerAttacks2(bitset<92> occupied, Tile hex);
-	//bitset<92> cornerAttacks3(bitset<92> occupied, Tile hex);
+	//bitset<115> cornerAttacks1(bitset<115> occupied, Tile hex);
+	//bitset<115> cornerAttacks2(bitset<115> occupied, Tile hex);
+	//bitset<115> cornerAttacks3(bitset<115> occupied, Tile hex);
 	//
-	//bitset<92> edgeAttacks1(bitset<92> occupied, Tile hex);
-	//bitset<92> edgeAttacks2(bitset<92> occupied, Tile hex);
-	//bitset<92> edgeAttacks3(bitset<92> occupied, Tile hex);
+	//bitset<115> edgeAttacks1(bitset<115> occupied, Tile hex);
+	//bitset<115> edgeAttacks2(bitset<115> occupied, Tile hex);
+	//bitset<155> edgeAttacks3(bitset<115> occupied, Tile hex);
 
 public:
 	void setPawnAttacks();
@@ -52,8 +52,15 @@ public:
 		return kingAttacks[pos];
 	}
 	
-	//void setRayAttacks();
-	//bitset<92> getRookAttacks(Tile pos);
-	//bitset<92> getBishopAttacks(Tile pos);
-	//bitset<92> getQueenAttacks(Tile pos);
+	void setRayAttacks();
+	inline bitset<115> getRayAttacks(Tile pos) {
+		bitset<115> attacks(0);
+		for (int i = 0; i < 12; i++) {
+			attacks |= rayAttacks[pos][i];
+		}
+		return attacks;
+	}
+	//inline bitset<115> getRookAttacks(Tile pos);
+	//inline bitset<115> getBishopAttacks(Tile pos);
+	//inline bitset<115> getQueenAttacks(Tile pos);
 };

@@ -159,7 +159,65 @@ void LookupBitboard::setKingAttacks(){
 	}
 }
 
-//void LookupBitboard::setRayAttacks(){}
-//bitset<92> LookupBitboard::getRookAttacks(Tile pos){}
-//bitset<92> LookupBitboard::getBishopAttacks(Tile pos){}
-//bitset<92> LookupBitboard::getQueenAttacks(Tile pos){}
+void LookupBitboard::setRayAttacks(){
+	for (int origin = 0; origin < 115; origin++) {
+		if (bb.SkipHexes.test(origin)) 
+			continue;
+		
+		int oFile = bb.Afile.test(origin) ? 0 : bb.Bfile.test(origin) ? 1 : bb.Cfile.test(origin) ? 2: bb.Dfile.test(origin) ? 3
+			: bb.Efile.test(origin) ? 4: bb.Ffile.test(origin) ? 5 : bb.Gfile.test(origin) ? 6: bb.Hfile.test(origin) ? 7
+			: bb.Ifile.test(origin) ? 8: bb.Jfile.test(origin) ? 9 : bb.Kfile.test(origin) ? 10 : 11;	
+		int oRank = bb.Rank01.test(origin) ? 0 : bb.Rank02.test(origin) ? 1 : bb.Rank03.test(origin) ? 2: bb.Rank04.test(origin) ? 3
+			: bb.Rank05.test(origin) ? 4: bb.Rank06.test(origin) ? 5 : bb.Rank07.test(origin) ? 6: bb.Rank08.test(origin) ? 7
+			: bb.Rank09.test(origin) ? 8: bb.Rank10.test(origin) ? 9 : bb.Rank11.test(origin) ? 10 : 11;
+		int oRevRank = bb.RevRank01.test(origin) ? 0 : bb.RevRank02.test(origin) ? 1 : bb.RevRank03.test(origin) ? 2: bb.RevRank04.test(origin) ? 3
+			: bb.RevRank05.test(origin) ? 4: bb.RevRank06.test(origin) ? 5 : bb.RevRank07.test(origin) ? 6: bb.RevRank08.test(origin) ? 7
+			: bb.RevRank09.test(origin) ? 8: bb.RevRank10.test(origin) ? 9 : bb.RevRank11.test(origin) ? 10 : 11;
+		
+		for (int target = 0; target < 115; target++) {
+			if (bb.SkipHexes.test(target) || origin == target) 
+				continue;
+
+			int tFile = bb.Afile.test(target) ? 0 : bb.Bfile.test(target) ? 1 : bb.Cfile.test(target) ? 2 : bb.Dfile.test(target) ? 3 
+				: bb.Efile.test(target) ? 4 : bb.Ffile.test(target) ? 5 : bb.Gfile.test(target) ? 6 : bb.Hfile.test(target) ? 7 
+				: bb.Ifile.test(target) ? 8 : bb.Jfile.test(target) ? 9 : bb.Kfile.test(target) ? 10 : 11;
+			int tRank = bb.Rank01.test(target) ? 0 : bb.Rank02.test(target) ? 1 : bb.Rank03.test(target) ? 2 : bb.Rank04.test(target) ? 3 
+				: bb.Rank05.test(target) ? 4 : bb.Rank06.test(target) ? 5 : bb.Rank07.test(target) ? 6 : bb.Rank08.test(target) ? 7 
+				: bb.Rank09.test(target) ? 8 : bb.Rank10.test(target) ? 9 : bb.Rank11.test(target) ? 10 : 11;
+			int tRevRank = bb.RevRank01.test(target) ? 0 : bb.RevRank02.test(target) ? 1 : bb.RevRank03.test(target) ? 2 : bb.RevRank04.test(target) ? 3 
+				: bb.RevRank05.test(target) ? 4 : bb.RevRank06.test(target) ? 5 : bb.RevRank07.test(target) ? 6 : bb.RevRank08.test(target) ? 7 
+				: bb.RevRank09.test(target) ? 8 : bb.RevRank10.test(target) ? 9 : bb.RevRank11.test(target) ? 10 : 11;
+						
+			if (origin > target) {
+				if (tRank == oRank)									//EdgeNW
+					rayAttacks[origin][0].set(target);
+				else if (tFile == oFile)							//EdgeS
+					rayAttacks[origin][4].set(target);
+				else if (tRevRank == oRevRank)					//EdgeSW
+					rayAttacks[origin][5].set(target);
+
+				else if ((origin - target) % CornerW == 0)									//CornerW
+					rayAttacks[origin][6].set(target);
+				else if ((origin - target) % CornerNW == 0 && tRank > oRank)			//CornerNW
+					rayAttacks[origin][7].set(target);
+				else if ((origin - target) % CornerSW == 0 && tRevRank < oRevRank)	//CornerSW
+					rayAttacks[origin][11].set(target);
+			}
+			else {
+				if (tFile == oFile)									//EdgeN
+					rayAttacks[origin][1].set(target);
+				else if (tRevRank == oRevRank)					//EdgeNE
+					rayAttacks[origin][2].set(target);
+				else if (tRank == oRank)							//EdgeSE
+					rayAttacks[origin][3].set(target);
+
+				else if ((target - origin) % CornerNE == 0 && tRevRank > oRevRank)	//CornerNE
+					rayAttacks[origin][8].set(target);
+				else if ((target - origin) % CornerE == 0)									//CornerE
+					rayAttacks[origin][9].set(target);
+				else if ((target - origin) % CornerSE == 0 && tRank < oRank)			//CornerSE	
+					rayAttacks[origin][10].set(target);
+			}
+		}
+	}
+}
