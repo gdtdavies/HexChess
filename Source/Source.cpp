@@ -19,6 +19,7 @@ BitBoard bb;
 
 #include "../Headers/LookupBitboards.h"
 #include "../Headers/Enums.h"
+#include "../Headers/Move.h"
 
 
 glm::mat4 ViewMatrix, ProjectionMatrix;
@@ -35,6 +36,8 @@ Colour turn = NA;
 void mouseCallback(int button, int state, int x, int y);
 
 bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y);
+Type getTypeInHex(Tile hex);
+Colour getColourInHex(Tile hex);
 
 void loadFromFen(string fen);
 
@@ -177,7 +180,16 @@ void mouseCallback(int button, int state, int x, int y) {
 		}
 
 		//check if the piece can move to that hex
+		
+		Move move = Move(selectedHex, static_cast<Tile>(hex.id), getTypeInHex(selectedHex), turn);
 
+		move.setTakenType(getTypeInHex(static_cast<Tile>(hex.id)));
+
+		move.toString();
+		move.run(bb);
+		turn = turn == white ? black : white;
+		selectedHex = none;
+		cout << bb.Wpawns << endl;
 
 	}
 }
@@ -227,6 +239,23 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 	if (!isIntersection(click, down, p4, p5) && !isIntersection(click, down, p5, p0) && !isIntersection(click, down, p0, p1)) return false;
 
 	return true;	
+}
+
+Type getTypeInHex(Tile hex) {
+	if ((bb.Wpawns   | bb.Bpawns).test(hex)) return pawn;
+	if ((bb.Wknights | bb.Bknights).test(hex)) return knight;
+	if ((bb.Wbishops | bb.Bbishops).test(hex)) return bishop;
+	if ((bb.Wrooks   | bb.Brooks).test(hex)) return rook;
+	if ((bb.Wqueens  | bb.Bqueens).test(hex)) return queen;
+	if ((bb.Wking    | bb.Bking).test(hex)) return king;
+	return Type::empty;
+}
+
+Colour getColourInHex(Tile hex) {
+	Colour colour = NA;
+	if (bb.Wpieces.test(hex)) colour = white;
+	else if (bb.Bpieces.test(hex)) colour = black;
+	return colour;
 }
 
 //=End of Game====||==================||==================||==================||==================>>

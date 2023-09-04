@@ -6,18 +6,19 @@ using namespace std;
 
 class BitBoard {
 public:
-	bitset<115> Wpawns   = bitset<115>(0), Bpawns   = bitset<115>(0);
-	bitset<115> Wknights = bitset<115>(0), Bknights = bitset<115>(0);
-	bitset<115> Wbishops = bitset<115>(0), Bbishops = bitset<115>(0);
-	bitset<115> Wrooks   = bitset<115>(0), Brooks   = bitset<115>(0);
-	bitset<115> Wqueens  = bitset<115>(0), Bqueens  = bitset<115>(0);
-	bitset<115> Wking    = bitset<115>(0), Bking    = bitset<115>(0);
+	bitset<115> Wpawns  , Bpawns  ;
+	bitset<115> Wknights, Bknights;
+	bitset<115> Wbishops, Bbishops;
+	bitset<115> Wrooks  , Brooks  ;
+	bitset<115> Wqueens , Bqueens ;
+	bitset<115> Wking   , Bking   ;
 
-	bitset<115> Wpieces = Wpawns | Wknights | Wbishops | Wrooks | Wqueens | Wking;
-	bitset<115> Bpieces = Bpawns | Bknights | Bbishops | Brooks | Bqueens | Bking;
+	bitset<115> Wpieces;
+	bitset<115> Bpieces;
 
-	bitset<115> Occupied = Wpieces | Bpieces;
+	bitset<115> Occupied;
 
+	//-Masks---
 	const bitset<115> SkipHexes  = bitset<115>("1100000011110000000111000000001100000000010000000000000000000000000000000100000000011000000001110000000111100000011");
 	const bitset<115> DarkHexes  = bitset<115>("0000100100000100100000100100100000100100100100100100100100100100100100100000100100100100100100000100100000000100100");
 	const bitset<115> MedHexes   = bitset<115>("0001001000001001001000001001000001001001001001001001001001001001001001001001001001000001001000001001001000001001000");
