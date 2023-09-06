@@ -16,4 +16,7 @@ o17,o18,  j5, j6, j7, j8, j9, j10, j11,  o19,o20,
 o21,o22,    k6, k7, k8, k9, k10, k11,    o23,o24,
                        none
 };
-
+const enum Direction : int {
+   EdgeNW = -10, EdgeN = 1, EdgeNE = 11, EdgeSE = 10, EdgeS = -1, EdgeSW = -11,
+   CornerW = -21, CornerNW = -9, CornerNE = 12, CornerE = 21, CornerSE = 9, CornerSW = -12
+};

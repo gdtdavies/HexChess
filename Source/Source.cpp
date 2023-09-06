@@ -51,11 +51,11 @@ void init() {
 	glLineWidth(3.5f);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	LuBB.setPawnMoves();
-	LuBB.setPawnAttacks();
-	LuBB.setKnightAttacks();
-	LuBB.setKingAttacks();
-	LuBB.setRayAttacks();
+	LuBB.setPawnMoves(bb);
+	LuBB.setPawnAttacks(bb);
+	LuBB.setKnightAttacks(bb);
+	LuBB.setKingAttacks(bb);
+	LuBB.setRayAttacks(bb);
 }
 
 void display() {
@@ -73,23 +73,23 @@ void display() {
 		gui.drawSelectedHex(gui.hexes[selectedHex]);
 		
 		if (bb.Wpawns.test(selectedHex) || bb.Bpawns.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getPawnMoves(selectedHex, turn), bb.Occupied);
-			gui.drawAttacks(LuBB.getPawnAttacks(selectedHex, turn), bb.Occupied);
+			gui.drawAttacks(LuBB.getPawnMoves(bb, selectedHex, turn), bb.Occupied);
+			gui.drawAttacks(LuBB.getPawnAttacks(bb, selectedHex, turn), bb.Occupied);
 		}
 		else if (bb.Wknights.test(selectedHex) || bb.Bknights.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getKnightAttacks(selectedHex), bb.Occupied);
+			gui.drawAttacks(LuBB.getKnightAttacks(bb, selectedHex, turn), bb.Occupied);
 		}
 		else if (bb.Wking.test(selectedHex) || bb.Bking.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getKingAttacks(selectedHex), bb.Occupied);
+			gui.drawAttacks(LuBB.getKingAttacks(bb, selectedHex, turn), bb.Occupied);
 		}
 		else if (bb.Wrooks.test(selectedHex) || bb.Brooks.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getRayAttacks(selectedHex), bb.Occupied);
+			gui.drawAttacks(LuBB.getRookAttacks(bb, selectedHex, turn), bb.Occupied);
 		}
 		else if (bb.Wbishops.test(selectedHex) || bb.Bbishops.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getRayAttacks(selectedHex), bb.Occupied);
+			gui.drawAttacks(LuBB.getBishopAttacks(bb, selectedHex, turn), bb.Occupied);
 		}
 		else if (bb.Wqueens.test(selectedHex) || bb.Bqueens.test(selectedHex)) {
-			gui.drawAttacks(LuBB.getRayAttacks(selectedHex), bb.Occupied);
+			gui.drawAttacks(LuBB.getQueenAttacks(bb, selectedHex, turn), bb.Occupied);
 		}
 	}
 	
@@ -145,7 +145,7 @@ void mouseCallback(int button, int state, int x, int y) {
 	y = gui.screenHeight - y;
 
 	//cout << x << ", " << y << endl;
-	for (int i = 0; i < gui.hexes.size(); i++){
+	for (int i = 0; i < gui.hexes.size(); i++) {
 
 		Hex hex = gui.hexes[i];
 
@@ -155,7 +155,7 @@ void mouseCallback(int button, int state, int x, int y) {
 		//if (Rank01.test(hex.id)) cout << "rank 1" << endl;
 		//if (Rank06.test(hex.id)) cout << "rank 6" << endl;
 		//if (Rank11.test(hex.id)) cout << "rank 11" << endl;
-		
+
 		bitset<115> active_colour = turn == white ? bb.Wpieces : turn == black ? bb.Bpieces : bb.Occupied;
 
 		if (selectedHex == none) {
@@ -173,7 +173,7 @@ void mouseCallback(int button, int state, int x, int y) {
 		}
 
 		//if the colour matches the turn -> select the new hex and return
-		
+
 		if (active_colour.test(hex.id)) {
 			selectedHex = static_cast<Tile>(hex.id);
 			return;
@@ -182,26 +182,24 @@ void mouseCallback(int button, int state, int x, int y) {
 		//check if the piece can move to that hex
 
 		Type type = getTypeInHex(selectedHex);
-		
+
 		Move move = Move(selectedHex, static_cast<Tile>(hex.id), type, turn);
 
 		move.setTakenType(getTypeInHex(static_cast<Tile>(hex.id)));
 
 		move.toString();
-		bool isLegal = type == pawn ? move.isLegal(bb, (LuBB.getPawnAttacks(selectedHex, turn) | LuBB.getPawnMoves(selectedHex, turn)))
-			: type == knight ? move.isLegal(bb, LuBB.getKnightAttacks(selectedHex))
-			: type == bishop ? move.isLegal(bb, LuBB.getRayAttacks(selectedHex))
-			: type == rook ? move.isLegal(bb, LuBB.getRayAttacks(selectedHex))
-			: type == queen ? move.isLegal(bb, LuBB.getRayAttacks(selectedHex))
-			: type == king ? move.isLegal(bb, LuBB.getKingAttacks(selectedHex))
+		bool isLegal = type == pawn ? move.isLegal(bb, (LuBB.getPawnAttacks(bb, selectedHex, turn) | LuBB.getPawnMoves(bb, selectedHex, turn)))
+			: type == knight ? move.isLegal(bb, LuBB.getKnightAttacks(bb, selectedHex, turn))
+			: type == bishop ? move.isLegal(bb, LuBB.getBishopAttacks(bb, selectedHex, turn))
+			: type == rook ? move.isLegal(bb, LuBB.getRookAttacks(bb, selectedHex, turn))
+			: type == queen ? move.isLegal(bb, LuBB.getQueenAttacks(bb, selectedHex, turn))
+			: type == king ? move.isLegal(bb, LuBB.getKingAttacks(bb, selectedHex, turn))
 			: false;
 		if (isLegal) {
 			move.run(bb);
 			turn = turn == white ? black : white;
 			selectedHex = none;
 		}
-		cout << bb.Wpawns << endl;
-
 	}
 }
 

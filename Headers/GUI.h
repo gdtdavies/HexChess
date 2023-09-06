@@ -1,7 +1,8 @@
 #pragma once
-#include "../Headers/Enums.h"
-#include "../Headers/Hex.h"
-#include "../Headers/Bitboards.h"
+#include "Enums.h"
+#include "Hex.h"
+#include "Bitboards.h"
+#include "Move.h"
 
 #include <vector>
 #include <bitset>

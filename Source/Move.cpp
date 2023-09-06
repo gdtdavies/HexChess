@@ -108,9 +108,7 @@ void Move::undo(BitBoard &bb){
 bool Move::isLegal(BitBoard &bb, bitset<115> attacks) {
 	//check the move is in the list of moves for the piece
 	if (!attacks.test(destination)) return false;
-	//chec the destination is on occupied by a friendly piece
-	bitset<115> active_colour = (colour == white) ? bb.Wpieces : (colour == black) ? bb.Bpieces : 0;
-	if (active_colour.test(destination)) return false;
+	//if the piece is a pawn, check that their isn't a piece blocking the double move
 	//make the move
 	//check if the move puts the player in check
 	//undo the move

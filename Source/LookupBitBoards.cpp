@@ -1,28 +1,39 @@
 #include "../Headers/LookupBitboards.h"
 
-#include<vector>
-
 //-----------------------------------------------------------------------------
 //-private methods-------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-//bool LookupBitboard::isNegative(int dir){}
-//int LookupBitboard::bitScan(bitset<92> mask, bool isNegative){}
-//bitset<92> LookupBitboard::getRayAttacks(bitset<92> occupied, Direction dir, Tile hex){}
-//
-//bitset<92> LookupBitboard::cornerAttacks1(bitset<92> occupied, Tile hex){}
-//bitset<92> LookupBitboard::cornerAttacks2(bitset<92> occupied, Tile hex){}
-//bitset<92> LookupBitboard::cornerAttacks3(bitset<92> occupied, Tile hex){}
-//
-//bitset<92> LookupBitboard::edgeAttacks1(bitset<92> occupied, Tile hex){}
-//bitset<92> LookupBitboard::edgeAttacks2(bitset<92> occupied, Tile hex){}
-//bitset<92> LookupBitboard::edgeAttacks3(bitset<92> occupied, Tile hex){}
+int LookupBitboard::bitScan(bitset<115> mask, bool isNegative) {
+	//unsigned long index;
+	if (!isNegative) {
+		for (int hex = 0; hex < 115; hex++) {
+			if (mask.test(hex)) return hex;
+		}
+	}
+	else {
+		for (int hex = 114; hex > 0; hex--) {
+			if (mask.test(hex)) return hex;
+		}
+	}
+}
+bitset<115> LookupBitboard::getRayAttacks(bitset<115> occupied, Direction dir, Tile hex) {
+	int dirIndex = dir == EdgeNW ? 0 : dir == EdgeN ? 1 : dir == EdgeNE ? 2 : dir == EdgeSE ? 3 : dir == EdgeS ? 4 : dir == EdgeSW ? 5 
+		: dir == CornerW ? 6 : dir == CornerNW ? 7 : dir == CornerNE ? 8 : dir == CornerE ? 9 : dir == CornerSE ? 10 : dir == CornerSW ? 11 : 12;
+	bitset<115> attacks = rayAttacks[hex][dirIndex];
+	bitset<115> blockers = attacks & occupied;
+	if (blockers.any()) {
+		Tile blocker = (Tile)bitScan(blockers, isNegative(dir));
+		attacks ^= rayAttacks[blocker][dirIndex];
+	}
+	return attacks;
+}
 
 //-----------------------------------------------------------------------------
-//-public methods-------------------------------------------------------------
+//-public methods--------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-void LookupBitboard::setPawnMoves() {
+void LookupBitboard::setPawnMoves(BitBoard& bb) {
 	std::bitset<115> WpawnStart("0000000000000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000000");
 	std::bitset<115> BpawnStart("0000000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000000000000");
 
@@ -41,7 +52,7 @@ void LookupBitboard::setPawnMoves() {
 	}
 	
 }
-void LookupBitboard::setPawnAttacks() {
+void LookupBitboard::setPawnAttacks(BitBoard& bb) {
 	for (int i = 0; i < 115; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		
@@ -61,7 +72,7 @@ void LookupBitboard::setPawnAttacks() {
 	
 }
 
-void LookupBitboard::setKnightAttacks() {
+void LookupBitboard::setKnightAttacks(BitBoard& bb) {
 	
 	for (int i = 0; i < 115; i++) {
 		if (bb.SkipHexes.test(i)) continue;
@@ -127,7 +138,7 @@ void LookupBitboard::setKnightAttacks() {
 	}
 }
 
-void LookupBitboard::setKingAttacks(){
+void LookupBitboard::setKingAttacks(BitBoard& bb){
 	for (int i = 0; i < 115; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		
@@ -159,7 +170,7 @@ void LookupBitboard::setKingAttacks(){
 	}
 }
 
-void LookupBitboard::setRayAttacks(){
+void LookupBitboard::setRayAttacks(BitBoard& bb){
 	for (int origin = 0; origin < 115; origin++) {
 		if (bb.SkipHexes.test(origin)) 
 			continue;
