@@ -29,12 +29,12 @@ void LookupBitboard::setPawnMoves() {
 	for (int i = 0; i < 115; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		if (!bb.Top.test(i)) {
-			WpawnAttacks[i].set(i + 1);
+			WpawnMoves[i].set(i + 1);
 			if (WpawnStart.test(i)) 
 				WpawnMoves[i].set(i + 2);
 		}
 		if (!bb.Bottom.test(i)) {
-			BpawnAttacks[i].set(i - 1);
+			BpawnMoves[i].set(i - 1);
 			if (BpawnStart.test(i))
 				BpawnMoves[i].set(i - 2);
 		}
@@ -189,11 +189,11 @@ void LookupBitboard::setRayAttacks(){
 				: bb.RevRank09.test(target) ? 8 : bb.RevRank10.test(target) ? 9 : bb.RevRank11.test(target) ? 10 : 11;
 						
 			if (origin > target) {
-				if (tRank == oRank)									//EdgeNW
+				if (tRank == oRank)							//EdgeNW
 					rayAttacks[origin][0].set(target);
-				else if (tFile == oFile)							//EdgeS
+				else if (tFile == oFile)					//EdgeS
 					rayAttacks[origin][4].set(target);
-				else if (tRevRank == oRevRank)					//EdgeSW
+				else if (tRevRank == oRevRank)			//EdgeSW
 					rayAttacks[origin][5].set(target);
 
 				else if ((origin - target) % CornerW == 0)									//CornerW
@@ -204,11 +204,11 @@ void LookupBitboard::setRayAttacks(){
 					rayAttacks[origin][11].set(target);
 			}
 			else {
-				if (tFile == oFile)									//EdgeN
+				if (tFile == oFile)							//EdgeN
 					rayAttacks[origin][1].set(target);
-				else if (tRevRank == oRevRank)					//EdgeNE
+				else if (tRevRank == oRevRank)			//EdgeNE
 					rayAttacks[origin][2].set(target);
-				else if (tRank == oRank)							//EdgeSE
+				else if (tRank == oRank)					//EdgeSE
 					rayAttacks[origin][3].set(target);
 
 				else if ((target - origin) % CornerNE == 0 && tRevRank > oRevRank)	//CornerNE

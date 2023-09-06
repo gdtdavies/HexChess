@@ -16,6 +16,8 @@ private:
 
 	Type takenType = Type::empty;
 
+	bool done = false;
+
 	//bool isEnPassent();
 public:
 	Move(Tile origin, Tile destination, Type type, Colour colour);
@@ -29,9 +31,9 @@ public:
 	//bool isCheck();
 
 	void run(BitBoard &bb);
-	void undo();
+	void undo(BitBoard &bb);
 
-	bool isLegal();
+	bool isLegal(BitBoard &bb, bitset<115> attacks);
 
 	void toString();
 	

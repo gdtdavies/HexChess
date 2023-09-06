@@ -180,15 +180,26 @@ void mouseCallback(int button, int state, int x, int y) {
 		}
 
 		//check if the piece can move to that hex
+
+		Type type = getTypeInHex(selectedHex);
 		
-		Move move = Move(selectedHex, static_cast<Tile>(hex.id), getTypeInHex(selectedHex), turn);
+		Move move = Move(selectedHex, static_cast<Tile>(hex.id), type, turn);
 
 		move.setTakenType(getTypeInHex(static_cast<Tile>(hex.id)));
 
 		move.toString();
-		move.run(bb);
-		turn = turn == white ? black : white;
-		selectedHex = none;
+		bool isLegal = type == pawn ? move.isLegal(bb, (LuBB.getPawnAttacks(selectedHex, turn) | LuBB.getPawnMoves(selectedHex, turn)))
+			: type == knight ? move.isLegal(bb, LuBB.getKnightAttacks(selectedHex))
+			: type == bishop ? move.isLegal(bb, LuBB.getRayAttacks(selectedHex))
+			: type == rook ? move.isLegal(bb, LuBB.getRayAttacks(selectedHex))
+			: type == queen ? move.isLegal(bb, LuBB.getRayAttacks(selectedHex))
+			: type == king ? move.isLegal(bb, LuBB.getKingAttacks(selectedHex))
+			: false;
+		if (isLegal) {
+			move.run(bb);
+			turn = turn == white ? black : white;
+			selectedHex = none;
+		}
 		cout << bb.Wpawns << endl;
 
 	}
