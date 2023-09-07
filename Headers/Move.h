@@ -1,6 +1,7 @@
 #pragma once
 #include "Enums.h"
 #include "Bitboards.h"
+#include "LookupBitBoards.h"
 
 #include <iostream>
 #include <bitset>
@@ -28,12 +29,14 @@ public:
 	inline Colour getColour() { return colour; }
 
 	inline void setTakenType(Type ttype) { takenType = ttype; }
-	//bool isCheck();
 
 	void run(BitBoard &bb);
 	void undo(BitBoard &bb);
 
-	bool isLegal(BitBoard &bb, bitset<115> attacks);
+	bool WisCheck(BitBoard& bb, LookupBitboard& LuBB);
+	bool BisCheck(BitBoard& bb, LookupBitboard& LuBB);
+	
+	bool isLegal(BitBoard &bb, LookupBitboard& LuBB, bitset<115> attacks, Colour c);
 
 	void toString();
 	

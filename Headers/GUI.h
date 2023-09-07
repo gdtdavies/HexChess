@@ -31,5 +31,5 @@ public:
 
 	void drawSelectedHex(Hex hex);
 
-	void drawAttacks(std::bitset<115> attacks, std::bitset<115> occupied);
+	void drawAttack(Move& m, bitset<115> occupied);
 };

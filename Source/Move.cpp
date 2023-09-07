@@ -105,15 +105,62 @@ void Move::undo(BitBoard &bb){
 	done = false;
 }
 
-bool Move::isLegal(BitBoard &bb, bitset<115> attacks) {
+bool Move::WisCheck(BitBoard& bb, LookupBitboard& LuBB) {
+	for (int hex = 0; hex < 115; hex++) {
+
+		if (bb.SkipHexes.test(hex)) continue;
+		if (!bb.Bpieces.test(hex))continue;
+
+		for (int attack = 0; attack < 115; attack++) {
+			if (bb.SkipHexes.test(attack)) continue;
+			if (!bb.Wking.test(attack)) continue;
+
+			if (bb.Bpawns.test(hex)   && (LuBB.getPawnMoves    (bb, (Tile)hex, black) | LuBB.getPawnAttacks(bb, (Tile)hex, black)).test(attack)) return true;
+			if (bb.Bknights.test(hex) && LuBB.getKnightAttacks(bb, (Tile)hex, black).test(attack)) return true;
+			if (bb.Bbishops.test(hex) && LuBB.getBishopAttacks(bb, (Tile)hex, black).test(attack)) return true;
+			if (bb.Brooks.test(hex)   && LuBB.getRookAttacks  (bb, (Tile)hex, black).test(attack)) return true;
+			if (bb.Bqueens.test(hex)  && LuBB.getQueenAttacks (bb, (Tile)hex, black).test(attack)) return true;
+			if (bb.Bking.test(hex)    && LuBB.getKingAttacks  (bb, (Tile)hex, black).test(attack)) return true;
+		}
+	}
+	return false;
+}
+
+bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
+	for (int hex = 0; hex < 115; hex++) {
+
+		if (bb.SkipHexes.test(hex)) continue;
+		if (!bb.Wpieces.test(hex))continue;
+
+		for (int attack = 0; attack < 115; attack++) {
+			if (bb.SkipHexes.test(attack)) continue;
+			if (!bb.Bking.test(attack)) continue;
+
+			if (bb.Wpawns.test(hex)   && (LuBB.getPawnMoves   (bb, (Tile)hex, white) | LuBB.getPawnAttacks(bb, (Tile)hex, white)).test(attack)) return true;
+			if (bb.Wknights.test(hex) && LuBB.getKnightAttacks(bb, (Tile)hex, white).test(attack)) return true;
+			if (bb.Wbishops.test(hex) && LuBB.getBishopAttacks(bb, (Tile)hex, white).test(attack)) return true;
+			if (bb.Wrooks.test(hex)   && LuBB.getRookAttacks  (bb, (Tile)hex, white).test(attack)) return true;
+			if (bb.Wqueens.test(hex)  && LuBB.getQueenAttacks (bb, (Tile)hex, white).test(attack)) return true;
+			if (bb.Wking.test(hex)    && LuBB.getKingAttacks  (bb, (Tile)hex, white).test(attack)) return true;
+		}
+	}
+	return false;
+}
+
+bool Move::isLegal(BitBoard &bb, LookupBitboard& LuBB, bitset<115> attacks, Colour c) {
 	//check the move is in the list of moves for the piece
 	if (!attacks.test(destination)) return false;
 	//if the piece is a pawn, check that their isn't a piece blocking the double move
 	//make the move
+	this->run(bb);
 	//check if the move puts the player in check
+	bool isLegal = true;
+	if      (c == white && this->WisCheck(bb, LuBB)) isLegal = false;
+	else if (c == black && this->BisCheck(bb, LuBB)) isLegal = false;
 	//undo the move
+	this->undo(bb);
 	//if it did put the player in check, return false
-	return true;
+	return isLegal;
 }
 
 void Move::toString() {
