@@ -151,6 +151,8 @@ bool Move::isLegal(BitBoard &bb, LookupBitboard& LuBB, bitset<115> attacks, Colo
 	//check the move is in the list of moves for the piece
 	if (!attacks.test(destination)) return false;
 	//if the piece is a pawn, check that their isn't a piece blocking the double move
+	if (c == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + 1)) return false;
+	if (c == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin - 1)) return false;
 	//make the move
 	this->run(bb);
 	//check if the move puts the player in check

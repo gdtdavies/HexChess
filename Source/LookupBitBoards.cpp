@@ -34,19 +34,16 @@ bitset<115> LookupBitboard::getRayAttacks(bitset<115> occupied, Direction dir, T
 //-----------------------------------------------------------------------------
 
 void LookupBitboard::setPawnMoves(BitBoard& bb) {
-	std::bitset<115> WpawnStart("0000000000000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000000");
-	std::bitset<115> BpawnStart("0000000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000000000000");
-
 	for (int i = 0; i < 115; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		if (!bb.Top.test(i)) {
 			WpawnMoves[i].set(i + 1);
-			if (WpawnStart.test(i)) 
+			if (bb.WpawnStarts.test(i)) 
 				WpawnMoves[i].set(i + 2);
 		}
 		if (!bb.Bottom.test(i)) {
 			BpawnMoves[i].set(i - 1);
-			if (BpawnStart.test(i))
+			if (bb.BpawnStarts.test(i))
 				BpawnMoves[i].set(i - 2);
 		}
 	}
