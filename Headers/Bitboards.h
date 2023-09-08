@@ -70,5 +70,23 @@ public:
 
 	const bitset<hex_count> WpawnStarts = bitset<hex_count>("0000000000000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000000");
 	const bitset<hex_count> BpawnStarts = bitset<hex_count>("0000000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000000000000");
+
+	inline Type getTypeInHex(Tile hex) {
+		if ((Wpawns   | Bpawns).test(hex)) return pawn;
+		if ((Wknights | Bknights).test(hex)) return knight;
+		if ((Wbishops | Bbishops).test(hex)) return bishop;
+		if ((Wrooks   | Brooks).test(hex)) return rook;
+		if ((Wqueens  | Bqueens).test(hex)) return queen;
+		if ((Wking    | Bking).test(hex)) return king;
+		return Type::empty;
+	}
+
+	inline Colour getColourInHex(Tile hex) {
+		Colour colour = NA;
+		if      (Wpieces.test(hex)) colour = white;
+		else if (Bpieces.test(hex)) colour = black;
+		return colour;
+	}
+
 };
 

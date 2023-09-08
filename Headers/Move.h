@@ -35,13 +35,17 @@ public:
 	inline void setColour(Colour colour) { this->colour = colour; }
 	inline void setTakenType(Type ttype) { takenType = ttype; }
 
-	void run(BitBoard &bb);
-	void undo(BitBoard &bb);
+	void run(BitBoard& bb);
+	void undo(BitBoard& bb);
 
 	bool WisCheck(BitBoard& bb, LookupBitboard& LuBB);
 	bool BisCheck(BitBoard& bb, LookupBitboard& LuBB);
 	
-	bool isLegal(BitBoard &bb, LookupBitboard& LuBB);
+	bool isLegal(BitBoard& bb, LookupBitboard& LuBB);
+
+	bool isCheckmate(BitBoard& bb, LookupBitboard& LuBB);
+	//bool isStalemate(BitBoard& bb, LookupBitboard& LuBB);
+	//bool isDraw(BitBoard& bb);
 
 	void toString();
 	

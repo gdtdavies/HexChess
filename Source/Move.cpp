@@ -9,7 +9,7 @@ Move::Move(Tile origin, Tile destination, Type type, Colour colour)
 	this->colour = colour;
 }
 
-void Move::run(BitBoard &bb) {
+void Move::run(BitBoard& bb) {
 	
 	if (colour == white) {
 		if (type == pawn) { bb.Wpawns.reset(origin); bb.Wpawns.set(destination); }
@@ -56,7 +56,7 @@ void Move::run(BitBoard &bb) {
 	done = true;
 }
 
-void Move::undo(BitBoard &bb){
+void Move::undo(BitBoard& bb){
 	//TODO: implement
 	if (!done) return; // don't want to undo a move that hasn't been made yet
 
@@ -147,7 +147,7 @@ bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 	return false;
 }
 
-bool Move::isLegal(BitBoard &bb, LookupBitboard& LuBB) {
+bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB) {
 	//check the move is in the list of moves for the piece
 	bitset<hex_count> attacks
 		= type == pawn ? (LuBB.getPawnAttacks(bb, origin, colour) | LuBB.getPawnMoves(bb, origin, colour))
@@ -171,6 +171,30 @@ bool Move::isLegal(BitBoard &bb, LookupBitboard& LuBB) {
 	this->undo(bb);
 	//if it did put the player in check, return false
 	return isLegal;
+}
+
+bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB) {
+	//check if the move puts the other player in check
+	if (colour == white && !this->BisCheck(bb, LuBB)) return false;
+	if (colour == black && !this->WisCheck(bb, LuBB)) return false;
+
+	for (int hex = 0; hex < hex_count; hex++) {
+		if (bb.SkipHexes.test(hex)) continue;
+		if (colour == white && !bb.Bpieces.test(hex)) continue;
+		if (colour == black && !bb.Wpieces.test(hex)) continue;
+
+		for (int attack = 0; attack < hex_count; attack++) {
+			if (bb.SkipHexes.test(attack)) continue;
+			
+			Move m = Move((Tile)hex, (Tile)attack, bb.getTypeInHex((Tile)hex), colour == white ? black : white);
+			m.setTakenType(bb.getTypeInHex((Tile)attack));
+
+			//it is not checkmate if a legal move exists
+			if (m.isLegal(bb, LuBB))
+				return false;
+		}
+	}
+	return true;
 }
 
 void Move::toString() {

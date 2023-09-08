@@ -5,7 +5,6 @@
 //-----------------------------------------------------------------------------
 
 int LookupBitboard::bitScan(bitset<hex_count> mask, bool isNegative) {
-	//unsigned long index;
 	if (!isNegative) {
 		for (int hex = 0; hex < hex_count; hex++) {
 			if (mask.test(hex)) return hex;
@@ -68,7 +67,6 @@ void LookupBitboard::setPawnAttacks(BitBoard& bb) {
 	}
 	
 }
-
 void LookupBitboard::setKnightAttacks(BitBoard& bb) {
 	
 	for (int i = 0; i < hex_count; i++) {
@@ -134,7 +132,6 @@ void LookupBitboard::setKnightAttacks(BitBoard& bb) {
 		}
 	}
 }
-
 void LookupBitboard::setKingAttacks(BitBoard& bb){
 	for (int i = 0; i < hex_count; i++) {
 		if (bb.SkipHexes.test(i)) continue;
@@ -166,7 +163,6 @@ void LookupBitboard::setKingAttacks(BitBoard& bb){
 			kingAttacks[i].set(i + CornerSW);
 	}
 }
-
 void LookupBitboard::setRayAttacks(BitBoard& bb){
 	for (int origin = 0; origin < hex_count; origin++) {
 		if (bb.SkipHexes.test(origin)) 

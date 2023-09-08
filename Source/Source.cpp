@@ -32,13 +32,11 @@ glm::mat4 ViewMatrix, ProjectionMatrix;
 Tile selectedHex = none;
 Colour turn = NA;
 
+bool gameOver = false;
+
 //-function defs-
 void mouseCallback(int button, int state, int x, int y);
-
 bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y);
-Type getTypeInHex(Tile hex);
-Colour getColourInHex(Tile hex);
-
 void loadFromFen(string fen);
 
 // /================================<<--------------------------->>================================/
@@ -74,42 +72,18 @@ void display() {
 		//displaying the attacked hexes
 		for (int attack = 0; attack < hex_count; attack++) {
 			if (bb.SkipHexes.test(attack)) continue;
-			Move m;
-			m.setOrigin(selectedHex);
-			m.setDestination((Tile)attack);
-			m.setColour(turn);
-			m.setTakenType(getTypeInHex((Tile)attack));
-			
-			if      (bb.Wpawns.test(selectedHex)   || bb.Bpawns.test(selectedHex))   m.setType(pawn);
-			else if (bb.Wknights.test(selectedHex) || bb.Bknights.test(selectedHex)) m.setType(knight);
-			else if (bb.Wbishops.test(selectedHex) || bb.Bbishops.test(selectedHex)) m.setType(bishop);
-			else if (bb.Wrooks.test(selectedHex)   || bb.Brooks.test(selectedHex))   m.setType(rook);
-			else if (bb.Wqueens.test(selectedHex)  || bb.Bqueens.test(selectedHex))  m.setType(queen);
-			else if (bb.Wking.test(selectedHex)    || bb.Bking.test(selectedHex))    m.setType(king);
-			
+			Move m = Move(selectedHex, (Tile)attack, bb.getTypeInHex(selectedHex), turn);
+			m.setTakenType(bb.getTypeInHex((Tile)attack));
+		
 			if (m.isLegal(bb, LuBB))
 				gui.drawAttack((Tile)attack, bb.Occupied);
 		}
 	}
-
-	
 	
 	//displaying the pieces
 	for (int hex = 0; hex < hex_count; hex++) {
 		if (!bb.Occupied.test(hex)) continue;
-
-		if      (bb.Wpawns.test(hex))   gui.drawPiece((Tile)hex, white, pawn);
-		else if (bb.Bpawns.test(hex))   gui.drawPiece((Tile)hex, black, pawn);
-		else if (bb.Wrooks.test(hex))   gui.drawPiece((Tile)hex, white, rook);
-		else if (bb.Brooks.test(hex))   gui.drawPiece((Tile)hex, black, rook);
-		else if (bb.Wknights.test(hex)) gui.drawPiece((Tile)hex, white, knight);
-		else if (bb.Bknights.test(hex)) gui.drawPiece((Tile)hex, black, knight);
-		else if (bb.Wbishops.test(hex)) gui.drawPiece((Tile)hex, white, bishop);
-		else if (bb.Bbishops.test(hex)) gui.drawPiece((Tile)hex, black, bishop);
-		else if (bb.Wqueens.test(hex))  gui.drawPiece((Tile)hex, white, queen);
-		else if (bb.Bqueens.test(hex))  gui.drawPiece((Tile)hex, black, queen);
-		else if (bb.Wking.test(hex))    gui.drawPiece((Tile)hex, white, king);
-		else if (bb.Bking.test(hex))    gui.drawPiece((Tile)hex, black, king);
+		gui.drawPiece((Tile)hex, bb.getColourInHex((Tile)hex), bb.getTypeInHex((Tile)hex));
 	}
 
 	glDisable(GL_BLEND);
@@ -143,6 +117,8 @@ void mouseCallback(int button, int state, int x, int y) {
 	//reverse the y value so 0 is at the bottom of the screen
 	y = gui.screenHeight - y;
 
+	if (gameOver) return;
+	
 	bool done = false;
 	for (int hex = 0; hex < hex_count; hex++) {
 		if (done) continue;
@@ -166,10 +142,11 @@ void mouseCallback(int button, int state, int x, int y) {
 			selectedHex = (Tile)hex;
 			return;
 		}
+		if (selectedHex == none) continue;
 
 		//create a move object for the current move
-		Move move = Move(selectedHex, (Tile)hex, getTypeInHex(selectedHex), turn);
-		move.setTakenType(getTypeInHex((Tile)hex));
+		Move move = Move(selectedHex, (Tile)hex, bb.getTypeInHex(selectedHex), turn);
+		move.setTakenType(bb.getTypeInHex((Tile)hex));
 
 		//make the move, swap the turn, and delselect the hex if the move is legal
 		if (move.isLegal(bb, LuBB)) {
@@ -177,15 +154,18 @@ void mouseCallback(int button, int state, int x, int y) {
 			turn = turn == white ? black : white;
 			selectedHex = none;
 			done = true;
+			//end the game if it is checkmate
+			if (move.isCheckmate(bb, LuBB)) {
+				gameOver = true;
+				cout << "checkmate << " << (turn == white ? "black" : "white") << " wins >>" << endl;
+			}
+
+			//end the game if it is stalemate
+			//if (move.isStalemate(bb, LuBB)) //end the game
+
+			//end the game if it is a draw
+			//if (move.isDraw(bb)) //end the game
 		}
-		//end the game if it is checkmate
-		//if (m.isCheckmate(bb, LuBB)) //end the game
-
-		//end the game if it is stalemate
-		//if (m.isStalemate(bb, LuBB)) //end the game
-
-		//end the game if it is a draw
-		//if (m.isDraw(bb)) //end the game
 	}
 }
 
@@ -233,23 +213,6 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 	if (!isIntersection(click, down, p4, p5) && !isIntersection(click, down, p5, p0) && !isIntersection(click, down, p0, p1)) return false;
 
 	return true;	
-}
-
-Type getTypeInHex(Tile hex) {
-	if ((bb.Wpawns   | bb.Bpawns).test(hex)) return pawn;
-	if ((bb.Wknights | bb.Bknights).test(hex)) return knight;
-	if ((bb.Wbishops | bb.Bbishops).test(hex)) return bishop;
-	if ((bb.Wrooks   | bb.Brooks).test(hex)) return rook;
-	if ((bb.Wqueens  | bb.Bqueens).test(hex)) return queen;
-	if ((bb.Wking    | bb.Bking).test(hex)) return king;
-	return Type::empty;
-}
-
-Colour getColourInHex(Tile hex) {
-	Colour colour = NA;
-	if (bb.Wpieces.test(hex)) colour = white;
-	else if (bb.Bpieces.test(hex)) colour = black;
-	return colour;
 }
 
 //=Load Board=========================||==================||==================||==================>>
