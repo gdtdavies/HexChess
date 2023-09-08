@@ -4,10 +4,10 @@
 //-private methods-------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-int LookupBitboard::bitScan(bitset<115> mask, bool isNegative) {
+int LookupBitboard::bitScan(bitset<hex_count> mask, bool isNegative) {
 	//unsigned long index;
 	if (!isNegative) {
-		for (int hex = 0; hex < 115; hex++) {
+		for (int hex = 0; hex < hex_count; hex++) {
 			if (mask.test(hex)) return hex;
 		}
 	}
@@ -17,11 +17,11 @@ int LookupBitboard::bitScan(bitset<115> mask, bool isNegative) {
 		}
 	}
 }
-bitset<115> LookupBitboard::getRayAttacks(bitset<115> occupied, Direction dir, Tile hex) {
+bitset<hex_count> LookupBitboard::getRayAttacks(bitset<hex_count> occupied, Direction dir, Tile hex) {
 	int dirIndex = dir == EdgeNW ? 0 : dir == EdgeN ? 1 : dir == EdgeNE ? 2 : dir == EdgeSE ? 3 : dir == EdgeS ? 4 : dir == EdgeSW ? 5 
 		: dir == CornerW ? 6 : dir == CornerNW ? 7 : dir == CornerNE ? 8 : dir == CornerE ? 9 : dir == CornerSE ? 10 : dir == CornerSW ? 11 : 12;
-	bitset<115> attacks = rayAttacks[hex][dirIndex];
-	bitset<115> blockers = attacks & occupied;
+	bitset<hex_count> attacks = rayAttacks[hex][dirIndex];
+	bitset<hex_count> blockers = attacks & occupied;
 	if (blockers.any()) {
 		Tile blocker = (Tile)bitScan(blockers, isNegative(dir));
 		attacks ^= rayAttacks[blocker][dirIndex];
@@ -34,7 +34,7 @@ bitset<115> LookupBitboard::getRayAttacks(bitset<115> occupied, Direction dir, T
 //-----------------------------------------------------------------------------
 
 void LookupBitboard::setPawnMoves(BitBoard& bb) {
-	for (int i = 0; i < 115; i++) {
+	for (int i = 0; i < hex_count; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		if (!bb.Top.test(i)) {
 			WpawnMoves[i].set(i + 1);
@@ -50,7 +50,7 @@ void LookupBitboard::setPawnMoves(BitBoard& bb) {
 	
 }
 void LookupBitboard::setPawnAttacks(BitBoard& bb) {
-	for (int i = 0; i < 115; i++) {
+	for (int i = 0; i < hex_count; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		
 		if (!bb.Top.test(i)) {
@@ -71,40 +71,40 @@ void LookupBitboard::setPawnAttacks(BitBoard& bb) {
 
 void LookupBitboard::setKnightAttacks(BitBoard& bb) {
 	
-	for (int i = 0; i < 115; i++) {
+	for (int i = 0; i < hex_count; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		
 		int NW_NW_SW = i + CornerW + EdgeNW;
-		if (0 < NW_NW_SW && NW_NW_SW < 115 && !bb.SkipHexes.test(NW_NW_SW))
+		if (0 < NW_NW_SW && NW_NW_SW < hex_count && !bb.SkipHexes.test(NW_NW_SW))
 			knightAttacks[i].set(NW_NW_SW);
 		int SW_SW_NW = i + CornerW + EdgeSW;
-		if (0 < SW_SW_NW && SW_SW_NW < 115 && !bb.SkipHexes.test(SW_SW_NW))
+		if (0 < SW_SW_NW && SW_SW_NW < hex_count && !bb.SkipHexes.test(SW_SW_NW))
 			knightAttacks[i].set(SW_SW_NW);
 		int NE_NE_SE = i + CornerE + EdgeNE;
-		if (0 < NE_NE_SE && NE_NE_SE < 115 && !bb.SkipHexes.test(NE_NE_SE))
+		if (0 < NE_NE_SE && NE_NE_SE < hex_count && !bb.SkipHexes.test(NE_NE_SE))
 			knightAttacks[i].set(NE_NE_SE);
 		int SE_SE_NE = i + CornerE + EdgeSE;
-		if (0 < SE_SE_NE && SE_SE_NE < 115 && !bb.SkipHexes.test(SE_SE_NE))
+		if (0 < SE_SE_NE && SE_SE_NE < hex_count && !bb.SkipHexes.test(SE_SE_NE))
 			knightAttacks[i].set(SE_SE_NE);
 
 		if (i != 52 && i != 63) {
 			if (i != 32 && i != 42 && i != 43 && i!=53) {
 				int SE_SE_S = i + CornerSE + EdgeSE;
-				if (0 < SE_SE_S && SE_SE_S < 115 && !bb.SkipHexes.test(SE_SE_S))
+				if (0 < SE_SE_S && SE_SE_S < hex_count && !bb.SkipHexes.test(SE_SE_S))
 					knightAttacks[i].set(SE_SE_S);
 				if (i != 54 && i != 64 && i != 74) {
 					int S_S_SE = i + CornerSE + EdgeS;
-					if (0 < S_S_SE && S_S_SE < 115 && !bb.SkipHexes.test(S_S_SE))
+					if (0 < S_S_SE && S_S_SE < hex_count && !bb.SkipHexes.test(S_S_SE))
 						knightAttacks[i].set(S_S_SE);
 				}
 			}
 			if (i != 74 && i != 85) {
 				int SW_SW_S = i + CornerSW + EdgeSW;
-				if (0 < SW_SW_S && SW_SW_S < 115 && !bb.SkipHexes.test(SW_SW_S))
+				if (0 < SW_SW_S && SW_SW_S < hex_count && !bb.SkipHexes.test(SW_SW_S))
 					knightAttacks[i].set(SW_SW_S);
 				if (i != 42 && i != 53 && i != 64 && i != 75) {
 					int S_S_SW = i + CornerSW + EdgeS;
-					if (0 < S_S_SW && S_S_SW < 115 && !bb.SkipHexes.test(S_S_SW))
+					if (0 < S_S_SW && S_S_SW < hex_count && !bb.SkipHexes.test(S_S_SW))
 						knightAttacks[i].set(S_S_SW);
 				}
 			}
@@ -113,21 +113,21 @@ void LookupBitboard::setKnightAttacks(BitBoard& bb) {
 		if (i != 51 && i != 62) {
 			if (i != 61 && i != 71 && i != 72 && i != 82) {
 				int NW_NW_N = i + CornerNW + EdgeNW;
-				if (0 < NW_NW_N && NW_NW_N < 115 && !bb.SkipHexes.test(NW_NW_N))
+				if (0 < NW_NW_N && NW_NW_N < hex_count && !bb.SkipHexes.test(NW_NW_N))
 					knightAttacks[i].set(NW_NW_N);
 				if (i != 40 && i != 50 && i != 60) {
 					int N_N_NW = i + CornerNW + EdgeN;
-					if (0 < N_N_NW && N_N_NW < 115 && !bb.SkipHexes.test(N_N_NW))
+					if (0 < N_N_NW && N_N_NW < hex_count && !bb.SkipHexes.test(N_N_NW))
 						knightAttacks[i].set(N_N_NW);
 				}
 			}
 			if (i != 29 && i != 40) {
 				int NE_NE_N = i + CornerNE + EdgeNE;
-				if (0 < NE_NE_N && NE_NE_N < 115 && !bb.SkipHexes.test(NE_NE_N))
+				if (0 < NE_NE_N && NE_NE_N < hex_count && !bb.SkipHexes.test(NE_NE_N))
 					knightAttacks[i].set(NE_NE_N);
 				if (i != 39 && i != 50 && i != 61 && i != 72) {
 					int N_N_NE = i + CornerNE + EdgeN;
-					if (0 < N_N_NE && N_N_NE < 115 && !bb.SkipHexes.test(N_N_NE))
+					if (0 < N_N_NE && N_N_NE < hex_count && !bb.SkipHexes.test(N_N_NE))
 						knightAttacks[i].set(N_N_NE);
 				}
 			}
@@ -136,7 +136,7 @@ void LookupBitboard::setKnightAttacks(BitBoard& bb) {
 }
 
 void LookupBitboard::setKingAttacks(BitBoard& bb){
-	for (int i = 0; i < 115; i++) {
+	for (int i = 0; i < hex_count; i++) {
 		if (bb.SkipHexes.test(i)) continue;
 		
 		if (!(bb.Afile | bb.RevRank11).test(i)) 
@@ -168,7 +168,7 @@ void LookupBitboard::setKingAttacks(BitBoard& bb){
 }
 
 void LookupBitboard::setRayAttacks(BitBoard& bb){
-	for (int origin = 0; origin < 115; origin++) {
+	for (int origin = 0; origin < hex_count; origin++) {
 		if (bb.SkipHexes.test(origin)) 
 			continue;
 		
@@ -182,7 +182,7 @@ void LookupBitboard::setRayAttacks(BitBoard& bb){
 			: bb.RevRank05.test(origin) ? 4: bb.RevRank06.test(origin) ? 5 : bb.RevRank07.test(origin) ? 6: bb.RevRank08.test(origin) ? 7
 			: bb.RevRank09.test(origin) ? 8: bb.RevRank10.test(origin) ? 9 : bb.RevRank11.test(origin) ? 10 : 11;
 		
-		for (int target = 0; target < 115; target++) {
+		for (int target = 0; target < hex_count; target++) {
 			if (bb.SkipHexes.test(target) || origin == target) 
 				continue;
 

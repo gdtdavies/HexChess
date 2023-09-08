@@ -25,11 +25,11 @@ public:
 	float hexSize;
 	float pieceSize;
 	std::vector<Hex> hexes;
-	void drawPiece(Hex hex, Colour c, Type t);
+	void drawPiece(Tile tile, Colour c, Type t);
 	
 	void drawBoard();
 
-	void drawSelectedHex(Hex hex);
+	void drawSelectedHex(Tile tile);
 
-	void drawAttack(Move& m, bitset<115> occupied);
+	void drawAttack(Tile attack, bitset<hex_count> occupied);
 };

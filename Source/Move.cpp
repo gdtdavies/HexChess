@@ -106,12 +106,12 @@ void Move::undo(BitBoard &bb){
 }
 
 bool Move::WisCheck(BitBoard& bb, LookupBitboard& LuBB) {
-	for (int hex = 0; hex < 115; hex++) {
+	for (int hex = 0; hex < hex_count; hex++) {
 
 		if (bb.SkipHexes.test(hex)) continue;
 		if (!bb.Bpieces.test(hex))continue;
 
-		for (int attack = 0; attack < 115; attack++) {
+		for (int attack = 0; attack < hex_count; attack++) {
 			if (bb.SkipHexes.test(attack)) continue;
 			if (!bb.Wking.test(attack)) continue;
 
@@ -127,12 +127,12 @@ bool Move::WisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 }
 
 bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
-	for (int hex = 0; hex < 115; hex++) {
+	for (int hex = 0; hex < hex_count; hex++) {
 
 		if (bb.SkipHexes.test(hex)) continue;
 		if (!bb.Wpieces.test(hex))continue;
 
-		for (int attack = 0; attack < 115; attack++) {
+		for (int attack = 0; attack < hex_count; attack++) {
 			if (bb.SkipHexes.test(attack)) continue;
 			if (!bb.Bking.test(attack)) continue;
 
@@ -147,18 +147,26 @@ bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 	return false;
 }
 
-bool Move::isLegal(BitBoard &bb, LookupBitboard& LuBB, bitset<115> attacks, Colour c) {
+bool Move::isLegal(BitBoard &bb, LookupBitboard& LuBB) {
 	//check the move is in the list of moves for the piece
+	bitset<hex_count> attacks
+		= type == pawn ? (LuBB.getPawnAttacks(bb, origin, colour) | LuBB.getPawnMoves(bb, origin, colour))
+		: type == knight ? LuBB.getKnightAttacks(bb, origin, colour)
+		: type == bishop ? LuBB.getBishopAttacks(bb, origin, colour)
+		: type == rook ? LuBB.getRookAttacks(bb, origin, colour)
+		: type == queen ? LuBB.getQueenAttacks(bb, origin, colour)
+		: type == king ? LuBB.getKingAttacks(bb, origin, colour)
+		: 0;
 	if (!attacks.test(destination)) return false;
 	//if the piece is a pawn, check that their isn't a piece blocking the double move
-	if (c == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + 1)) return false;
-	if (c == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin - 1)) return false;
+	if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + 1)) return false;
+	if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin - 1)) return false;
 	//make the move
 	this->run(bb);
 	//check if the move puts the player in check
 	bool isLegal = true;
-	if      (c == white && this->WisCheck(bb, LuBB)) isLegal = false;
-	else if (c == black && this->BisCheck(bb, LuBB)) isLegal = false;
+	if      (colour == white && this->WisCheck(bb, LuBB)) isLegal = false;
+	else if (colour == black && this->BisCheck(bb, LuBB)) isLegal = false;
 	//undo the move
 	this->undo(bb);
 	//if it did put the player in check, return false

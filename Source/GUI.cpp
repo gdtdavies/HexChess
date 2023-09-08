@@ -116,7 +116,7 @@ void GUI::drawBoard() {
 			counter++;
 		
 			//add the hex to the list of hexes
-			if (hexes.size() >= 115) {
+			if (hexes.size() >= hex_count) {
 				y += hexSize;
 				continue;
 			}
@@ -146,7 +146,8 @@ void GUI::drawBoard() {
 	}
 }
 
-void GUI::drawPiece(Hex hex, Colour c, Type t) {
+void GUI::drawPiece(Tile tile, Colour c, Type t) {
+	Hex hex = hexes[tile];
 	float x = hex.x_c;
 	float y = hex.y_c;
 	
@@ -158,7 +159,8 @@ void GUI::drawPiece(Hex hex, Colour c, Type t) {
 	else if (t == king) drawKing(x, y, c);
 }
 
-void GUI::drawSelectedHex(Hex hex) {
+void GUI::drawSelectedHex(Tile tile) {
+	Hex hex = hexes[tile];
 	float x = hex.x_c;
 	float y = hex.y_c;
 
@@ -166,15 +168,14 @@ void GUI::drawSelectedHex(Hex hex) {
 	drawHex(x, y, c);
 }
 
-void GUI::drawAttack(Move& m, bitset<115> occupied) {
-	int dest = m.getDestination();
-	double cx = hexes[dest].x_c;
-	double cy = hexes[dest].y_c;
+void GUI::drawAttack(Tile attack, bitset<hex_count> occupied) {
+	double cx = hexes[attack].x_c;
+	double cy = hexes[attack].y_c;
 
-	if (bb.DarkHexes.test(dest))
-		occupied.test(dest) ? drawHex(cx, cy, { 0.25, 0.05, 0.05 }) : drawHex(cx, cy, { 0.05, 0.2,  0.05 });
-	else if (bb.MedHexes.test(dest))
-		occupied.test(dest) ? drawHex(cx, cy, { 0.4,  0.1,  0.1 }) : drawHex(cx, cy, { 0.1,  0.4, 0.1 });
-	else if (bb.LightHexes.test(dest))
-		occupied.test(dest) ? drawHex(cx, cy, { 0.75, 0.15, 0.15 }) : drawHex(cx, cy, { 0.15, 0.75,  0.15 });
+	if (bb.DarkHexes.test(attack))
+		occupied.test(attack) ? drawHex(cx, cy, { 0.25, 0.05, 0.05 }) : drawHex(cx, cy, { 0.05, 0.2,  0.05 });
+	else if (bb.MedHexes.test(attack))
+		occupied.test(attack) ? drawHex(cx, cy, { 0.4,  0.1,  0.1 }) : drawHex(cx, cy, { 0.1,  0.4, 0.1 });
+	else if (bb.LightHexes.test(attack))
+		occupied.test(attack) ? drawHex(cx, cy, { 0.75, 0.15, 0.15 }) : drawHex(cx, cy, { 0.15, 0.75,  0.15 });
 }

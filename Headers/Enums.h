@@ -20,3 +20,5 @@ const enum Direction : int {
    EdgeNW = -10, EdgeN = 1, EdgeNE = 11, EdgeSE = 10, EdgeS = -1, EdgeSW = -11,
    CornerW = -21, CornerNW = -9, CornerNE = 12, CornerE = 21, CornerSE = 9, CornerSW = -12
 };
+
+const int hex_count = 115;

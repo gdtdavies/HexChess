@@ -10,10 +10,10 @@
 
 class Move {
 private:
-	Tile origin;
-	Tile destination;
-	Type type;
-	Colour colour;
+	Tile origin = (Tile)0;
+	Tile destination = (Tile)0;
+	Type type = Type::empty;
+	Colour colour = Colour::NA;
 
 	Type takenType = Type::empty;
 
@@ -21,6 +21,7 @@ private:
 
 	//bool isEnPassent();
 public:
+	inline Move() {}
 	Move(Tile origin, Tile destination, Type type, Colour colour);
 
 	inline Tile getOrigin() { return origin; }
@@ -28,6 +29,10 @@ public:
 	inline Type getType() { return type; }
 	inline Colour getColour() { return colour; }
 
+	inline void setOrigin(Tile origin) { this->origin = origin; }
+	inline void setDestination(Tile destination) { this->destination = destination; }
+	inline void setType(Type type) { this->type = type; }
+	inline void setColour(Colour colour) { this->colour = colour; }
 	inline void setTakenType(Type ttype) { takenType = ttype; }
 
 	void run(BitBoard &bb);
@@ -36,7 +41,7 @@ public:
 	bool WisCheck(BitBoard& bb, LookupBitboard& LuBB);
 	bool BisCheck(BitBoard& bb, LookupBitboard& LuBB);
 	
-	bool isLegal(BitBoard &bb, LookupBitboard& LuBB, bitset<115> attacks, Colour c);
+	bool isLegal(BitBoard &bb, LookupBitboard& LuBB);
 
 	void toString();
 	
