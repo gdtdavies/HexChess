@@ -159,9 +159,11 @@ void mouseCallback(int button, int state, int x, int y) {
 				gameOver = true;
 				cout << "checkmate << " << (turn == white ? "black" : "white") << " wins >>" << endl;
 			}
-
 			//end the game if it is stalemate
-			//if (move.isStalemate(bb, LuBB)) //end the game
+			if (move.isStalemate(bb, LuBB)) {	
+				gameOver = true;
+				cout << "Stalemate" << endl;
+			}
 
 			//end the game if it is a draw
 			//if (move.isDraw(bb)) //end the game
@@ -316,12 +318,15 @@ int main(int argc, char** argv) {
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
 
-	loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
+	//loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
 	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
 	//loadFromFen("pppppp/ppppppp/pppppppp/ppppppppp/pppppppppp/ppppppppppp/pppppppppp/ppppppppp/pppppppp/ppppppp/pppppp w - 0 1");
 	//loadFromFen("nnnnnn/nnnnnnn/nnnnnnnn/nnnnnnnnn/nnnnnnnnnn/nnnnnnnnnnn/nnnnnnnnnn/nnnnnnnnn/nnnnnnnn/nnnnnnn/nnnnnn w - 0 1");
 	//loadFromFen("kkkkkk/kkkkkkk/kkkkkkkk/kkkkkkkkk/kkkkkkkkkk/kkkkkkkkkkk/kkkkkkkkkk/kkkkkkkkk/kkkkkkkk/kkkkkkk/kkkkkk w - 0 1");
 	//loadFromFen("qqqqqq/qqqqqqq/qqqqqqqq/qqqqqqqqq/qqqqqqqqqq/qqqqqqqqqqq/qqqqqqqqqq/qqqqqqqqq/qqqqqqqq/qqqqqqq/qqqqqq w - 0 1");
+
+	//checkmate test with qi9 | stalemate test with qi8
+	loadFromFen("1r4/7/8/9/10/11/10/9/8/3q3/5K w - 0 1");
 
 	init();
 	glutDisplayFunc(display);

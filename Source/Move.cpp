@@ -197,6 +197,30 @@ bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB) {
 	return true;
 }
 
+bool Move::isStalemate(BitBoard& bb, LookupBitboard& LuBB) {
+	//check if the move puts the other player in check. it can't be stalemate if the other player is in check
+	if (colour == white && this->BisCheck(bb, LuBB)) return false;
+	if (colour == black && this->WisCheck(bb, LuBB)) return false;
+
+	for (int hex = 0; hex < hex_count; hex++) {
+		if (bb.SkipHexes.test(hex)) continue;
+		if (colour == white && !bb.Bpieces.test(hex)) continue;
+		if (colour == black && !bb.Wpieces.test(hex)) continue;
+
+		for (int attack = 0; attack < hex_count; attack++) {
+			if (bb.SkipHexes.test(attack)) continue;
+
+			Move m = Move((Tile)hex, (Tile)attack, bb.getTypeInHex((Tile)hex), colour == white ? black : white);
+			m.setTakenType(bb.getTypeInHex((Tile)attack));
+
+			//it is not stalemate if a legal move exists
+			if (m.isLegal(bb, LuBB))
+				return false;
+		}
+	}
+	return true;
+}
+
 void Move::toString() {
 	cout << "move: \n\torigin = " << origin << "\n\tdestination = " << destination << "\n\ttype = " << type << "\n\ttakenType = " << takenType <<  "\n\tcolour = " << colour << endl;
 }

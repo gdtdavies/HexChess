@@ -44,7 +44,7 @@ public:
 	bool isLegal(BitBoard& bb, LookupBitboard& LuBB);
 
 	bool isCheckmate(BitBoard& bb, LookupBitboard& LuBB);
-	//bool isStalemate(BitBoard& bb, LookupBitboard& LuBB);
+	bool isStalemate(BitBoard& bb, LookupBitboard& LuBB);
 	//bool isDraw(BitBoard& bb);
 
 	void toString();
