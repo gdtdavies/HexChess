@@ -10,9 +10,14 @@ Move::Move(Tile origin, Tile destination, Type type, Colour colour)
 }
 
 void Move::run(BitBoard& bb) {
+	phalfMC = bb.halfMC;
+	pfullMC = bb.fullMC;
 	
 	if (colour == white) {
-		if (type == pawn) { bb.Wpawns.reset(origin); bb.Wpawns.set(destination); }
+		if (type == pawn) { 
+			bb.Wpawns.reset(origin); bb.Wpawns.set(destination); 
+			bb.halfMC = -1;
+		}
 		else if (type == knight) { bb.Wknights.reset(origin); bb.Wknights.set(destination); }
 		else if (type == bishop) { bb.Wbishops.reset(origin); bb.Wbishops.set(destination); }
 		else if (type == rook) { bb.Wrooks.reset(origin); bb.Wrooks.set(destination); }
@@ -21,7 +26,10 @@ void Move::run(BitBoard& bb) {
 		
 	}
 	else if (colour == black) {
-		if (type == pawn) { bb.Bpawns.reset(origin); bb.Bpawns.set(destination); }
+		if (type == pawn) { 
+			bb.Bpawns.reset(origin); bb.Bpawns.set(destination);
+			bb.halfMC = -1;
+		}
 		else if (type == knight) { bb.Bknights.reset(origin); bb.Bknights.set(destination); }
 		else if (type == bishop) { bb.Bbishops.reset(origin); bb.Bbishops.set(destination); }
 		else if (type == rook) { bb.Brooks.reset(origin); bb.Brooks.set(destination); }
@@ -47,11 +55,19 @@ void Move::run(BitBoard& bb) {
 			else if (takenType == queen) bb.Wqueens.reset(destination);
 			else if (takenType == king) bb.Wking.reset(destination);
 		}
+		
+		bb.halfMC = -1;
 	}
 	bb.Wpieces = bb.Wpawns | bb.Wknights | bb.Wbishops | bb.Wrooks | bb.Wqueens | bb.Wking;
 	bb.Bpieces = bb.Bpawns | bb.Bknights | bb.Bbishops | bb.Brooks | bb.Bqueens | bb.Bking;
 
 	bb.Occupied = bb.Wpieces | bb.Bpieces;
+
+	bb.halfMC++;
+	if (colour == black)
+		bb.fullMC++;
+
+	//bb.move_history.push_back(*this);
 
 	done = true;
 }
@@ -59,23 +75,26 @@ void Move::run(BitBoard& bb) {
 void Move::undo(BitBoard& bb){
 	//TODO: implement
 	if (!done) return; // don't want to undo a move that hasn't been made yet
+	
+	bb.halfMC = phalfMC;
+	bb.fullMC = pfullMC;
 
 	if (colour == white) {
-		if (type == pawn) { bb.Wpawns.set(origin); bb.Wpawns.reset(destination); }
+		if      (type == pawn)   { bb.Wpawns.set(origin);   bb.Wpawns.reset(destination);   }
 		else if (type == knight) { bb.Wknights.set(origin); bb.Wknights.reset(destination); }
 		else if (type == bishop) { bb.Wbishops.set(origin); bb.Wbishops.reset(destination); }
-		else if (type == rook) { bb.Wrooks.set(origin); bb.Wrooks.reset(destination); }
-		else if (type == queen) { bb.Wqueens.set(origin); bb.Wqueens.reset(destination); }
-		else if (type == king) { bb.Wking.set(origin); bb.Wking.reset(destination); }
+		else if (type == rook)   { bb.Wrooks.set(origin);   bb.Wrooks.reset(destination);   }
+		else if (type == queen)  { bb.Wqueens.set(origin);  bb.Wqueens.reset(destination);  }
+		else if (type == king)   { bb.Wking.set(origin);    bb.Wking.reset(destination);    }
 
 	}
 	else if (colour == black) {
-		if (type == pawn) { bb.Bpawns.set(origin); bb.Bpawns.reset(destination); }
+		if      (type == pawn)   { bb.Bpawns.set(origin); bb.Bpawns.reset(destination); }
 		else if (type == knight) { bb.Bknights.set(origin); bb.Bknights.reset(destination); }
 		else if (type == bishop) { bb.Bbishops.set(origin); bb.Bbishops.reset(destination); }
-		else if (type == rook) { bb.Brooks.set(origin); bb.Brooks.reset(destination); }
-		else if (type == queen) { bb.Bqueens.set(origin); bb.Bqueens.reset(destination); }
-		else if (type == king) { bb.Bking.set(origin); bb.Bking.reset(destination); }
+		else if (type == rook)   { bb.Brooks.set(origin); bb.Brooks.reset(destination); }
+		else if (type == queen)  { bb.Bqueens.set(origin); bb.Bqueens.reset(destination); }
+		else if (type == king)   { bb.Bking.set(origin); bb.Bking.reset(destination); }
 
 	}
 
@@ -101,7 +120,7 @@ void Move::undo(BitBoard& bb){
 	bb.Bpieces = bb.Bpawns | bb.Bknights | bb.Bbishops | bb.Brooks | bb.Bqueens | bb.Bking;
 
 	bb.Occupied = bb.Wpieces | bb.Bpieces;
-
+	//bb.move_history.pop_back();
 	done = false;
 }
 
@@ -219,6 +238,25 @@ bool Move::isStalemate(BitBoard& bb, LookupBitboard& LuBB) {
 		}
 	}
 	return true;
+}
+
+bool Move::isDraw(BitBoard& bb) {
+	//50 move rule
+	if (bb.halfMC >= 100) {
+		cout << "move clock exceeded" << endl;
+		return true;
+	}
+	//insufficient material
+	if ((bb.Wqueens | bb.Bqueens).none() && (bb.Wrooks | bb.Brooks).none() && (bb.Wpawns | bb.Bpawns).none()) {
+		if (bb.Wbishops.count() <= 1 && bb.Bbishops.count() <= 1 && bb.Wknights.count() <= 1 && bb.Bknights.count() <= 1) {
+			if ((bb.Wbishops | bb.Wknights).count() <= 1 && (bb.Bbishops | bb.Bknights).count() <= 1) {
+				cout << "insufficient material" << endl;
+				return true;
+			}
+		}
+	}
+	//3 fold repetition
+	return false;
 }
 
 void Move::toString() {

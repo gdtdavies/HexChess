@@ -2,6 +2,7 @@
 #include <vector>
 #include <bitset>
 #include "Enums.h"
+//#include "Move.h"
 
 using namespace std;
 
@@ -70,6 +71,9 @@ public:
 
 	const bitset<hex_count> WpawnStarts = bitset<hex_count>("0000000000000000001000000000100000000010000000001000000000100000000001000000000010000000000100000000001000000000000");
 	const bitset<hex_count> BpawnStarts = bitset<hex_count>("0000000000001000000000010000000000100000000001000000000010000000001000000000100000000010000000001000000000000000000");
+
+	int halfMC, fullMC; 
+	//vector<Move> move_history;
 
 	inline Type getTypeInHex(Tile hex) {
 		if ((Wpawns   | Bpawns).test(hex)) return pawn;

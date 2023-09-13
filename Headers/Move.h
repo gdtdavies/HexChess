@@ -19,6 +19,8 @@ private:
 
 	bool done = false;
 
+	int phalfMC, pfullMC;
+
 	//bool isEnPassent();
 public:
 	inline Move() {}
@@ -45,7 +47,7 @@ public:
 
 	bool isCheckmate(BitBoard& bb, LookupBitboard& LuBB);
 	bool isStalemate(BitBoard& bb, LookupBitboard& LuBB);
-	//bool isDraw(BitBoard& bb);
+	bool isDraw(BitBoard& bb);
 
 	void toString();
 	

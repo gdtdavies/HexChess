@@ -119,9 +119,9 @@ void mouseCallback(int button, int state, int x, int y) {
 
 	if (gameOver) return;
 	
-	bool done = false;
+	bool moveMade = false;
 	for (int hex = 0; hex < hex_count; hex++) {
-		if (done) continue;
+		if (moveMade) continue;
 		if (bb.SkipHexes.test(hex)) continue;
 		//check if the click was inside the hex
 		if (!isInside_hex(gui.hexes[hex].xcoords, gui.hexes[hex].ycoords, x, y)) continue;
@@ -151,22 +151,30 @@ void mouseCallback(int button, int state, int x, int y) {
 		//make the move, swap the turn, and delselect the hex if the move is legal
 		if (move.isLegal(bb, LuBB)) {
 			move.run(bb);
-			turn = turn == white ? black : white;
-			selectedHex = none;
-			done = true;
+			
 			//end the game if it is checkmate
 			if (move.isCheckmate(bb, LuBB)) {
 				gameOver = true;
-				cout << "checkmate << " << (turn == white ? "black" : "white") << " wins >>" << endl;
+				cout << "checkmate << " << (turn == white ? "white" : "black") << " wins >>" << endl;
 			}
 			//end the game if it is stalemate
-			if (move.isStalemate(bb, LuBB)) {	
+			else if (move.isStalemate(bb, LuBB)) {	
 				gameOver = true;
 				cout << "Stalemate" << endl;
 			}
-
 			//end the game if it is a draw
-			//if (move.isDraw(bb)) //end the game
+			else if (move.isDraw(bb)) {
+				gameOver = true;
+				cout << "Draw" << endl;
+			}
+			
+			selectedHex = none;
+			turn = turn == white ? black : white;
+			moveMade = true;
+
+			cout << bb.halfMC << endl;
+
+			return;
 		}
 	}
 }
@@ -294,10 +302,12 @@ void loadFromFen(string fen) {
 	//TODO
 	
 	//=Halfmove Clock========================================================3=|
-	//TODO
+	if (fen_info[3] != "-") bb.halfMC = stoi(fen_info[3]);
+	else bb.halfMC = 0;
 	
 	//=Fullmove Number=======================================================4=|
-	//TODO
+	if (fen_info[4] != "-") bb.fullMC = stoi(fen_info[3]);
+	else bb.fullMC = 0;
 	
 }
 
@@ -318,15 +328,11 @@ int main(int argc, char** argv) {
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
 
-	//loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
+	loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
 	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
-	//loadFromFen("pppppp/ppppppp/pppppppp/ppppppppp/pppppppppp/ppppppppppp/pppppppppp/ppppppppp/pppppppp/ppppppp/pppppp w - 0 1");
-	//loadFromFen("nnnnnn/nnnnnnn/nnnnnnnn/nnnnnnnnn/nnnnnnnnnn/nnnnnnnnnnn/nnnnnnnnnn/nnnnnnnnn/nnnnnnnn/nnnnnnn/nnnnnn w - 0 1");
-	//loadFromFen("kkkkkk/kkkkkkk/kkkkkkkk/kkkkkkkkk/kkkkkkkkkk/kkkkkkkkkkk/kkkkkkkkkk/kkkkkkkkk/kkkkkkkk/kkkkkkk/kkkkkk w - 0 1");
-	//loadFromFen("qqqqqq/qqqqqqq/qqqqqqqq/qqqqqqqqq/qqqqqqqqqq/qqqqqqqqqqq/qqqqqqqqqq/qqqqqqqqq/qqqqqqqq/qqqqqqq/qqqqqq w - 0 1");
 
 	//checkmate test with qi9 | stalemate test with qi8
-	loadFromFen("1r4/7/8/9/10/11/10/9/8/3q3/5K w - 0 1");
+	//loadFromFen("1r4/7/8/9/10/11/10/9/8/3q3/5K w - 99 1");
 
 	init();
 	glutDisplayFunc(display);
