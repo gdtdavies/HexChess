@@ -3,7 +3,7 @@
 const enum Colour : int { white, black, NA };
 const enum Type : int { pawn, knight, bishop, rook, queen, king, empty };
 const enum Tile : int {
-o1,o2,       a1, a2, a3, a4, a5, a6,       o3,o4,
+o1, o2, a1, a2, a3, a4, a5, a6, o3, o4,
 o5,o6,     b1, b2, b3, b4, b5, b6, b7,     o7,o8,
 o9,      c1, c2, c3, c4, c5, c6, c7, c8,     o10,
 o11,   d1, d2, d3, d4, d5, d6, d7, d8, d9,   o12,

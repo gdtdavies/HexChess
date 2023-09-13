@@ -172,7 +172,7 @@ void mouseCallback(int button, int state, int x, int y) {
 			turn = turn == white ? black : white;
 			moveMade = true;
 
-			cout << bb.halfMC << endl;
+			cout << bb.EnPassents << endl;
 
 			return;
 		}
@@ -223,6 +223,112 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 	if (!isIntersection(click, down, p4, p5) && !isIntersection(click, down, p5, p0) && !isIntersection(click, down, p0, p1)) return false;
 
 	return true;	
+}
+
+Tile strToTile(string str) {
+	if (str == "a1") return a1;
+	else if (str == "a2") return a2;
+	else if (str == "a3") return a3;
+	else if (str == "a4") return a4;
+	else if (str == "a5") return a5;
+	else if (str == "a6") return a6;
+	
+	else if (str == "b6") return b1;
+	else if (str == "b2") return b2;
+	else if (str == "b3") return b3;
+	else if (str == "b4") return b4;
+	else if (str == "b5") return b5;
+	else if (str == "b6") return b6;
+	else if (str == "b7") return b7;
+
+	else if (str == "c6") return c1;
+	else if (str == "c2") return c2;
+	else if (str == "c3") return c3;
+	else if (str == "c4") return c4;
+	else if (str == "c5") return c5;
+	else if (str == "c6") return c6;
+	else if (str == "c7") return c7;
+	else if (str == "c8") return c8;
+
+	else if (str == "d6") return d1;
+	else if (str == "d2") return d2;
+	else if (str == "d3") return d3;
+	else if (str == "d4") return d4;
+	else if (str == "d5") return d5;
+	else if (str == "d6") return d6;
+	else if (str == "d7") return d7;
+	else if (str == "d8") return d8;
+	else if (str == "d9") return d9;
+
+	else if (str == "e6") return e1;
+	else if (str == "e2") return e2;
+	else if (str == "e3") return e3;
+	else if (str == "e4") return e4;
+	else if (str == "e5") return e5;
+	else if (str == "e6") return e6;
+	else if (str == "e7") return e7;
+	else if (str == "e8") return e8;
+	else if (str == "e9") return e9;
+	else if (str == "e10") return e10;
+
+	else if (str == "f6") return f1;
+	else if (str == "f2") return f2;
+	else if (str == "f3") return f3;
+	else if (str == "f4") return f4;
+	else if (str == "f5") return f5;
+	else if (str == "f6") return f6;
+	else if (str == "f7") return f7;
+	else if (str == "f8") return f8;
+	else if (str == "f9") return f9;
+	else if (str == "f10") return f10;
+	else if (str == "f11") return f11;
+
+	else if (str == "g2") return g2;
+	else if (str == "g3") return g3;
+	else if (str == "g4") return g4;
+	else if (str == "g5") return g5;
+	else if (str == "g6") return g6;
+	else if (str == "g7") return g7;
+	else if (str == "g8") return g8;
+	else if (str == "g9") return g9;
+	else if (str == "g10") return g10;
+	else if (str == "g11") return g11;
+
+	else if (str == " h3") return h3;
+	else if (str == " h4") return h4;
+	else if (str == " h5") return h5;
+	else if (str == " h6") return h6;
+	else if (str == " h7") return h7;
+	else if (str == " h8") return h8;
+	else if (str == " h9") return h9;
+	else if (str == " h10") return h10;
+	else if (str == " h11") return h11;
+
+	else if (str == " i4") return i4;
+	else if (str == " i5") return i5;
+	else if (str == " i6") return i6;
+	else if (str == " i7") return i7;
+	else if (str == " i8") return i8;
+	else if (str == " i9") return i9;
+	else if (str == " i10") return i10;
+	else if (str == " i11") return i11;
+
+	else if (str == " j5") return j5;
+	else if (str == " j6") return j6;
+	else if (str == " j7") return j7;
+	else if (str == " j8") return j8;
+	else if (str == " j9") return j9;
+	else if (str == " j10") return j10;
+	else if (str == " j11") return j11;
+
+	else if (str == " k6") return k6;
+	else if (str == " k7") return k7;
+	else if (str == " k8") return k8;
+	else if (str == " k9") return k9;
+	else if (str == " k10") return k10;
+	else if (str == " k11") return k11;
+	
+	return none;
 }
 
 //=Load Board=========================||==================||==================||==================>>
@@ -299,7 +405,8 @@ void loadFromFen(string fen) {
 	turn = fen_info[1] == "w" ? white : fen_info[1] == "b" ? black : NA;
 	
 	//=Possible En Passant Targets===========================================2=|
-	//TODO
+	if (fen_info[2] != "-") bb.EnPassents = 0;
+	else bb.EnPassents = 1 << strToTile(fen_info[2]);
 	
 	//=Halfmove Clock========================================================3=|
 	if (fen_info[3] != "-") bb.halfMC = stoi(fen_info[3]);

@@ -19,7 +19,8 @@ private:
 
 	bool done = false;
 
-	int phalfMC, pfullMC;
+	int phalfMC = 0, pfullMC = 0;
+	bitset<hex_count> pEnPassent = 0;
 
 	//bool isEnPassent();
 public:

@@ -13,9 +13,19 @@ void Move::run(BitBoard& bb) {
 	phalfMC = bb.halfMC;
 	pfullMC = bb.fullMC;
 	
+	pEnPassent = bb.EnPassents;
+	
+	
 	if (colour == white) {
 		if (type == pawn) { 
 			bb.Wpawns.reset(origin); bb.Wpawns.set(destination); 
+			if (bb.EnPassents.test(destination)) {
+				if      (destination == origin + EdgeNW)  bb.Bpawns.reset(destination + EdgeS);
+				else if (destination == origin + EdgeNE)  bb.Bpawns.reset(destination + EdgeS);
+			}
+			bb.EnPassents = 0;
+			if (destination == origin + 2*EdgeN)
+				bb.EnPassents.set(origin + EdgeN);
 			bb.halfMC = -1;
 		}
 		else if (type == knight) { bb.Wknights.reset(origin); bb.Wknights.set(destination); }
@@ -28,6 +38,13 @@ void Move::run(BitBoard& bb) {
 	else if (colour == black) {
 		if (type == pawn) { 
 			bb.Bpawns.reset(origin); bb.Bpawns.set(destination);
+			if (bb.EnPassents.test(destination)) {
+				if      (destination == origin + EdgeSW)  bb.Wpawns.reset(destination + EdgeN);
+				else if (destination == origin + EdgeSE)  bb.Wpawns.reset(destination + EdgeN);
+			}
+			bb.EnPassents = 0;
+			if (destination == origin + 2 * EdgeS)
+				bb.EnPassents.set(origin + EdgeS);
 			bb.halfMC = -1;
 		}
 		else if (type == knight) { bb.Bknights.reset(origin); bb.Bknights.set(destination); }
@@ -63,6 +80,8 @@ void Move::run(BitBoard& bb) {
 
 	bb.Occupied = bb.Wpieces | bb.Bpieces;
 
+	if (type != pawn) bb.EnPassents = 0;
+
 	bb.halfMC++;
 	if (colour == black)
 		bb.fullMC++;
@@ -79,8 +98,14 @@ void Move::undo(BitBoard& bb){
 	bb.halfMC = phalfMC;
 	bb.fullMC = pfullMC;
 
+	bb.EnPassents = pEnPassent;
+
 	if (colour == white) {
-		if      (type == pawn)   { bb.Wpawns.set(origin);   bb.Wpawns.reset(destination);   }
+		if (type == pawn)   { 
+			bb.Wpawns.set(origin);   bb.Wpawns.reset(destination);  
+			if (pEnPassent.test(destination))
+				bb.Bpawns.set(destination + EdgeS);
+		}
 		else if (type == knight) { bb.Wknights.set(origin); bb.Wknights.reset(destination); }
 		else if (type == bishop) { bb.Wbishops.set(origin); bb.Wbishops.reset(destination); }
 		else if (type == rook)   { bb.Wrooks.set(origin);   bb.Wrooks.reset(destination);   }
@@ -89,7 +114,11 @@ void Move::undo(BitBoard& bb){
 
 	}
 	else if (colour == black) {
-		if      (type == pawn)   { bb.Bpawns.set(origin); bb.Bpawns.reset(destination); }
+		if (type == pawn)   {
+			bb.Bpawns.set(origin); bb.Bpawns.reset(destination);
+			if (pEnPassent.test(destination))
+				bb.Wpawns.set(destination + EdgeN);
+		}
 		else if (type == knight) { bb.Bknights.set(origin); bb.Bknights.reset(destination); }
 		else if (type == bishop) { bb.Bbishops.set(origin); bb.Bbishops.reset(destination); }
 		else if (type == rook)   { bb.Brooks.set(origin); bb.Brooks.reset(destination); }
@@ -135,11 +164,11 @@ bool Move::WisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 			if (!bb.Wking.test(attack)) continue;
 
 			if (bb.Bpawns.test(hex)   && (LuBB.getPawnMoves    (bb, (Tile)hex, black) | LuBB.getPawnAttacks(bb, (Tile)hex, black)).test(attack)) return true;
-			if (bb.Bknights.test(hex) && LuBB.getKnightAttacks(bb, (Tile)hex, black).test(attack)) return true;
-			if (bb.Bbishops.test(hex) && LuBB.getBishopAttacks(bb, (Tile)hex, black).test(attack)) return true;
-			if (bb.Brooks.test(hex)   && LuBB.getRookAttacks  (bb, (Tile)hex, black).test(attack)) return true;
-			if (bb.Bqueens.test(hex)  && LuBB.getQueenAttacks (bb, (Tile)hex, black).test(attack)) return true;
-			if (bb.Bking.test(hex)    && LuBB.getKingAttacks  (bb, (Tile)hex, black).test(attack)) return true;
+			if (bb.Bknights.test(hex) && LuBB.getKnightAttacks(bb, (Tile)hex).test(attack)) return true;
+			if (bb.Bbishops.test(hex) && LuBB.getBishopAttacks(bb, (Tile)hex).test(attack)) return true;
+			if (bb.Brooks.test(hex)   && LuBB.getRookAttacks  (bb, (Tile)hex).test(attack)) return true;
+			if (bb.Bqueens.test(hex)  && LuBB.getQueenAttacks (bb, (Tile)hex).test(attack)) return true;
+			if (bb.Bking.test(hex)    && LuBB.getKingAttacks  (bb, (Tile)hex).test(attack)) return true;
 		}
 	}
 	return false;
@@ -156,11 +185,11 @@ bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 			if (!bb.Bking.test(attack)) continue;
 
 			if (bb.Wpawns.test(hex)   && (LuBB.getPawnMoves   (bb, (Tile)hex, white) | LuBB.getPawnAttacks(bb, (Tile)hex, white)).test(attack)) return true;
-			if (bb.Wknights.test(hex) && LuBB.getKnightAttacks(bb, (Tile)hex, white).test(attack)) return true;
-			if (bb.Wbishops.test(hex) && LuBB.getBishopAttacks(bb, (Tile)hex, white).test(attack)) return true;
-			if (bb.Wrooks.test(hex)   && LuBB.getRookAttacks  (bb, (Tile)hex, white).test(attack)) return true;
-			if (bb.Wqueens.test(hex)  && LuBB.getQueenAttacks (bb, (Tile)hex, white).test(attack)) return true;
-			if (bb.Wking.test(hex)    && LuBB.getKingAttacks  (bb, (Tile)hex, white).test(attack)) return true;
+			if (bb.Wknights.test(hex) && LuBB.getKnightAttacks(bb, (Tile)hex).test(attack)) return true;
+			if (bb.Wbishops.test(hex) && LuBB.getBishopAttacks(bb, (Tile)hex).test(attack)) return true;
+			if (bb.Wrooks.test(hex)   && LuBB.getRookAttacks  (bb, (Tile)hex).test(attack)) return true;
+			if (bb.Wqueens.test(hex)  && LuBB.getQueenAttacks (bb, (Tile)hex).test(attack)) return true;
+			if (bb.Wking.test(hex)    && LuBB.getKingAttacks  (bb, (Tile)hex).test(attack)) return true;
 		}
 	}
 	return false;
@@ -168,18 +197,21 @@ bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 
 bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB) {
 	//check the move is in the list of moves for the piece
+	bitset<hex_count> opponant_pieces = colour == white ? bb.Bpieces : bb.Wpieces;
+	bitset<hex_count> active_pieces = bb.Occupied & ~opponant_pieces;
+	
 	bitset<hex_count> attacks
-		= type == pawn ? (LuBB.getPawnAttacks(bb, origin, colour) | LuBB.getPawnMoves(bb, origin, colour))
-		: type == knight ? LuBB.getKnightAttacks(bb, origin, colour)
-		: type == bishop ? LuBB.getBishopAttacks(bb, origin, colour)
-		: type == rook ? LuBB.getRookAttacks(bb, origin, colour)
-		: type == queen ? LuBB.getQueenAttacks(bb, origin, colour)
-		: type == king ? LuBB.getKingAttacks(bb, origin, colour)
+		= type == pawn ? ((LuBB.getPawnAttacks(bb, origin, colour) & opponant_pieces) | LuBB.getPawnMoves(bb, origin, colour) & ~bb.Occupied | (bb.EnPassents & LuBB.getPawnAttacks(bb, origin, colour)))
+		: type == knight ? LuBB.getKnightAttacks(bb, origin) & ~active_pieces
+		: type == bishop ? LuBB.getBishopAttacks(bb, origin) & ~active_pieces
+		: type == rook ? LuBB.getRookAttacks(bb, origin) & ~active_pieces
+		: type == queen ? LuBB.getQueenAttacks(bb, origin) & ~active_pieces
+		: type == king ? LuBB.getKingAttacks(bb, origin) & ~active_pieces
 		: 0;
 	if (!attacks.test(destination)) return false;
 	//if the piece is a pawn, check that their isn't a piece blocking the double move
-	if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + 1)) return false;
-	if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin - 1)) return false;
+	if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeN)) return false;
+	if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeS)) return false;
 	//make the move
 	this->run(bb);
 	//check if the move puts the player in check

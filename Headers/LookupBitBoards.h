@@ -37,19 +37,11 @@ public:
 	void setRayAttacks(BitBoard& bb);
 
 	
-	inline bitset<hex_count> getPawnAttacks(BitBoard& bb, Tile pos, Colour c)   { return c == white ? (WpawnAttacks[pos]  &  bb.Bpieces)  : (BpawnAttacks[pos]  &  bb.Wpieces);  }
-	inline bitset<hex_count> getPawnMoves(BitBoard& bb, Tile pos, Colour c)     { return c == white ? (WpawnMoves[pos]    & ~bb.Occupied) : (BpawnMoves[pos]    & ~bb.Occupied); }
-	inline bitset<hex_count> getKnightAttacks(BitBoard& bb, Tile pos, Colour c) { return c == white ? (knightAttacks[pos] & ~bb.Wpieces)  : (knightAttacks[pos] & ~bb.Bpieces);  }
-	inline bitset<hex_count> getKingAttacks(BitBoard& bb, Tile pos, Colour c)   { return c == white ? (kingAttacks[pos]   & ~bb.Wpieces)  : (kingAttacks[pos]   & ~bb.Bpieces);  }
-	inline bitset<hex_count> getRookAttacks(BitBoard &bb, Tile pos, Colour c){
-		bitset<hex_count> active_colour = c == white ? bb.Wpieces : bb.Bpieces;
-		return (edgeAttacks1(bb.Occupied, pos) | edgeAttacks2(bb.Occupied, pos) | edgeAttacks3(bb.Occupied, pos)) & ~active_colour;
-	}
-	inline bitset<hex_count> getBishopAttacks(BitBoard &bb, Tile pos, Colour c){
-		bitset<hex_count> active_colour = c == white ? bb.Wpieces : bb.Bpieces;
-		return (cornerAttacks1(bb.Occupied, pos) | cornerAttacks2(bb.Occupied, pos) | cornerAttacks3(bb.Occupied, pos)) & ~active_colour;
-	}
-	inline bitset<hex_count> getQueenAttacks(BitBoard &bb, Tile pos, Colour c){
-		return getRookAttacks(bb, pos, c) | getBishopAttacks(bb, pos, c);
-	}
+	inline bitset<hex_count> getPawnAttacks(BitBoard& bb, Tile pos, Colour c) { return c == white ? (WpawnAttacks[pos]) : (BpawnAttacks[pos]); }
+	inline bitset<hex_count> getPawnMoves(BitBoard& bb, Tile pos, Colour c) { return c == white ? (WpawnMoves[pos]) : (BpawnMoves[pos]); }
+	inline bitset<hex_count> getKnightAttacks(BitBoard& bb, Tile pos) {return knightAttacks[pos]; }
+	inline bitset<hex_count> getKingAttacks(BitBoard& bb, Tile pos) { return kingAttacks[pos]; }
+	inline bitset<hex_count> getRookAttacks(BitBoard &bb, Tile pos) { return (edgeAttacks1(bb.Occupied, pos) | edgeAttacks2(bb.Occupied, pos) | edgeAttacks3(bb.Occupied, pos));}
+	inline bitset<hex_count> getBishopAttacks(BitBoard &bb, Tile pos) { return (cornerAttacks1(bb.Occupied, pos) | cornerAttacks2(bb.Occupied, pos) | cornerAttacks3(bb.Occupied, pos));}
+	inline bitset<hex_count> getQueenAttacks(BitBoard &bb, Tile pos) { return getRookAttacks(bb, pos) | getBishopAttacks(bb, pos);}
 };

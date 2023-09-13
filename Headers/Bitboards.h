@@ -19,6 +19,8 @@ public:
 	bitset<hex_count> Bpieces;
 
 	bitset<hex_count> Occupied;
+	
+	bitset<hex_count> EnPassents;
 
 	//-Masks---
 	const bitset<hex_count> SkipHexes  = bitset<hex_count>("1100000011110000000111000000001100000000010000000000000000000000000000000100000000011000000001110000000111100000011");
