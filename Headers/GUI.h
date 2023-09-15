@@ -22,14 +22,13 @@ private:
 
 public:
 	double screenWidth = 1000, screenHeight = 1000;
-	float hexSize;
-	float pieceSize;
+	float hexSize, pieceSize;
 	std::vector<Hex> hexes;
-	void drawPiece(Tile tile, Colour c, Type t);
 	
 	void drawBoard();
+	void drawPiece(Tile tile, Colour c, Type t);
 
 	void drawSelectedHex(Tile tile);
-
 	void drawAttack(Tile attack, bitset<hex_count> occupied);
+	void drawPromotion(Colour c);
 };

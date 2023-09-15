@@ -33,6 +33,9 @@ Tile selectedHex = none;
 Colour turn = NA;
 
 bool gameOver = false;
+bool isPromotion = false;
+
+vector<Move> move_history;
 
 //-function defs-
 void mouseCallback(int button, int state, int x, int y);
@@ -65,8 +68,8 @@ void display() {
 	
 	gui.drawBoard();
 	
-	//displaying the selected hex
 	if (selectedHex != none) {
+		//displaying the selected hex
 		gui.drawSelectedHex(selectedHex);
 
 		//displaying the attacked hexes
@@ -75,7 +78,7 @@ void display() {
 			Move m = Move(selectedHex, (Tile)attack, bb.getTypeInHex(selectedHex), turn);
 			m.setTakenType(bb.getTypeInHex((Tile)attack));
 		
-			if (m.isLegal(bb, LuBB))
+			if (m.isLegal(bb, LuBB, move_history))
 				gui.drawAttack((Tile)attack, bb.Occupied);
 		}
 	}
@@ -85,6 +88,9 @@ void display() {
 		if (!bb.Occupied.test(hex)) continue;
 		gui.drawPiece((Tile)hex, bb.getColourInHex((Tile)hex), bb.getTypeInHex((Tile)hex));
 	}
+
+	//displaying the promotions
+	if (isPromotion) gui.drawPromotion(turn);
 
 	glDisable(GL_BLEND);
 	glutSwapBuffers();
@@ -135,11 +141,13 @@ void mouseCallback(int button, int state, int x, int y) {
 		//deselect the hex and return if it was the one already selected
 		if (selectedHex == hex) {
 			selectedHex = none;
+			isPromotion = false;
 			return;
 		}
 		//select the new hex and return if the colour matches the turn
 		if (active_colour.test(hex)) {
 			selectedHex = (Tile)hex;
+			isPromotion = false;
 			return;
 		}
 		if (selectedHex == none) continue;
@@ -148,22 +156,47 @@ void mouseCallback(int button, int state, int x, int y) {
 		Move move = Move(selectedHex, (Tile)hex, bb.getTypeInHex(selectedHex), turn);
 		move.setTakenType(bb.getTypeInHex((Tile)hex));
 
+		//set the promotion type if the promotion menu is available
+		if (isPromotion) {
+			if (hex != e6 && hex != f5 && hex != f6 && hex != g7) {
+				isPromotion = false;
+				return;
+			}
+			if (hex == e6) move.setPromotion(toKnight);
+			else if (hex == f5) move.setPromotion(toBishop);
+			else if (hex == f6) move.setPromotion(toQueen);
+			else if (hex == g7) move.setPromotion(toRook);
+
+			int dir = turn == white ? EdgeN : EdgeS;
+			move.setDestination((Tile)(selectedHex + dir));
+		}
+		
+		
 		//make the move, swap the turn, and delselect the hex if the move is legal
-		if (move.isLegal(bb, LuBB)) {
-			move.run(bb);
+		if (move.isLegal(bb, LuBB, move_history)) {
+			if (!isPromotion && move.getType() == pawn) {
+				if (turn == white && ((bb.RevRank10 & ~bb.Rank11) | (bb.Rank10 & ~bb.RevRank11)).test(selectedHex)
+					|| turn == black && ((bb.Rank02 & ~bb.RevRank01) | (bb.RevRank02 & ~bb.Rank01)).test(selectedHex)) {
+					isPromotion = true;
+					return;
+				}
+			}
+			isPromotion = false;
+
+			move.run(bb, move_history);
 			
 			//end the game if it is checkmate
-			if (move.isCheckmate(bb, LuBB)) {
+			if (move.isCheckmate(bb, LuBB, move_history)) {
 				gameOver = true;
 				cout << "checkmate << " << (turn == white ? "white" : "black") << " wins >>" << endl;
 			}
 			//end the game if it is stalemate
-			else if (move.isStalemate(bb, LuBB)) {	
+			else if (move.isStalemate(bb, LuBB, move_history)) {	
 				gameOver = true;
 				cout << "Stalemate" << endl;
 			}
 			//end the game if it is a draw
-			else if (move.isDraw(bb)) {
+			else if (move.isDraw(bb, move_history)) {
 				gameOver = true;
 				cout << "Draw" << endl;
 			}
@@ -172,7 +205,7 @@ void mouseCallback(int button, int state, int x, int y) {
 			turn = turn == white ? black : white;
 			moveMade = true;
 
-			cout << bb.EnPassents << endl;
+			move.print();
 
 			return;
 		}
@@ -225,112 +258,6 @@ bool isInside_hex(vector<float> xcoords, vector<float> ycoords, int x, int y) {
 	return true;	
 }
 
-Tile strToTile(string str) {
-	if (str == "a1") return a1;
-	else if (str == "a2") return a2;
-	else if (str == "a3") return a3;
-	else if (str == "a4") return a4;
-	else if (str == "a5") return a5;
-	else if (str == "a6") return a6;
-	
-	else if (str == "b6") return b1;
-	else if (str == "b2") return b2;
-	else if (str == "b3") return b3;
-	else if (str == "b4") return b4;
-	else if (str == "b5") return b5;
-	else if (str == "b6") return b6;
-	else if (str == "b7") return b7;
-
-	else if (str == "c6") return c1;
-	else if (str == "c2") return c2;
-	else if (str == "c3") return c3;
-	else if (str == "c4") return c4;
-	else if (str == "c5") return c5;
-	else if (str == "c6") return c6;
-	else if (str == "c7") return c7;
-	else if (str == "c8") return c8;
-
-	else if (str == "d6") return d1;
-	else if (str == "d2") return d2;
-	else if (str == "d3") return d3;
-	else if (str == "d4") return d4;
-	else if (str == "d5") return d5;
-	else if (str == "d6") return d6;
-	else if (str == "d7") return d7;
-	else if (str == "d8") return d8;
-	else if (str == "d9") return d9;
-
-	else if (str == "e6") return e1;
-	else if (str == "e2") return e2;
-	else if (str == "e3") return e3;
-	else if (str == "e4") return e4;
-	else if (str == "e5") return e5;
-	else if (str == "e6") return e6;
-	else if (str == "e7") return e7;
-	else if (str == "e8") return e8;
-	else if (str == "e9") return e9;
-	else if (str == "e10") return e10;
-
-	else if (str == "f6") return f1;
-	else if (str == "f2") return f2;
-	else if (str == "f3") return f3;
-	else if (str == "f4") return f4;
-	else if (str == "f5") return f5;
-	else if (str == "f6") return f6;
-	else if (str == "f7") return f7;
-	else if (str == "f8") return f8;
-	else if (str == "f9") return f9;
-	else if (str == "f10") return f10;
-	else if (str == "f11") return f11;
-
-	else if (str == "g2") return g2;
-	else if (str == "g3") return g3;
-	else if (str == "g4") return g4;
-	else if (str == "g5") return g5;
-	else if (str == "g6") return g6;
-	else if (str == "g7") return g7;
-	else if (str == "g8") return g8;
-	else if (str == "g9") return g9;
-	else if (str == "g10") return g10;
-	else if (str == "g11") return g11;
-
-	else if (str == " h3") return h3;
-	else if (str == " h4") return h4;
-	else if (str == " h5") return h5;
-	else if (str == " h6") return h6;
-	else if (str == " h7") return h7;
-	else if (str == " h8") return h8;
-	else if (str == " h9") return h9;
-	else if (str == " h10") return h10;
-	else if (str == " h11") return h11;
-
-	else if (str == " i4") return i4;
-	else if (str == " i5") return i5;
-	else if (str == " i6") return i6;
-	else if (str == " i7") return i7;
-	else if (str == " i8") return i8;
-	else if (str == " i9") return i9;
-	else if (str == " i10") return i10;
-	else if (str == " i11") return i11;
-
-	else if (str == " j5") return j5;
-	else if (str == " j6") return j6;
-	else if (str == " j7") return j7;
-	else if (str == " j8") return j8;
-	else if (str == " j9") return j9;
-	else if (str == " j10") return j10;
-	else if (str == " j11") return j11;
-
-	else if (str == " k6") return k6;
-	else if (str == " k7") return k7;
-	else if (str == " k8") return k8;
-	else if (str == " k9") return k9;
-	else if (str == " k10") return k10;
-	else if (str == " k11") return k11;
-	
-	return none;
-}
-
 //=Load Board=========================||==================||==================||==================>>
 
 void loadFromFen(string fen) {
@@ -356,8 +283,6 @@ void loadFromFen(string fen) {
 
 	bb.Bpawns.reset(); bb.Brooks.reset(); bb.Bknights.reset();
 	bb.Bbishops.reset(); bb.Bqueens.reset(); bb.Bking.reset();
-
-	
 	
 	int hex = 2;
 	for (int i = 0; i < fen_info[0].length(); i++) {
@@ -405,8 +330,16 @@ void loadFromFen(string fen) {
 	turn = fen_info[1] == "w" ? white : fen_info[1] == "b" ? black : NA;
 	
 	//=Possible En Passant Targets===========================================2=|
-	if (fen_info[2] != "-") bb.EnPassents = 0;
-	else bb.EnPassents = 1 << strToTile(fen_info[2]);
+	if (fen_info[2] == "-") bb.EnPassents = 0;
+	else {
+		char letter = fen_info[2][0];
+		int digit = 0;
+		for (char c : fen_info[2]) {
+			if (isdigit(c)) digit = (digit * 10) + ((int)c - 48);
+		}
+		int tile = ((int)letter - 97) * 10 + 2 + (digit - 1);
+		bb.EnPassents = bitset<hex_count>(1) << tile;
+	}
 	
 	//=Halfmove Clock========================================================3=|
 	if (fen_info[3] != "-") bb.halfMC = stoi(fen_info[3]);
@@ -435,12 +368,18 @@ int main(int argc, char** argv) {
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
 
-	loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
+	//loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
 	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
 
 	//checkmate test with qi9 | stalemate test with qi8
 	//loadFromFen("1r4/7/8/9/10/11/10/9/8/3q3/5K w - 99 1");
 
+	//en passent test b6 and j10 for white; b2 and j6 for black
+	loadFromFen("6/2p1P2/2P2p2/9/5k4/11/4K5/9/2P2p2/2p1P2/6 b j6 0 1");
+
+	//promotion test
+	//loadFromFen("1P2p1/1P3p1/1P4p1/1P5p1/1P6p1/1P7p1/1P6p1/1P5p1/1P4p1/1P3p1/1P2p1 w - 0 1");
+	
 	init();
 	glutDisplayFunc(display);
 	glutIdleFunc(idle);

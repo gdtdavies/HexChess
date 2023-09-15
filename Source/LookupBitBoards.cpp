@@ -28,6 +28,26 @@ bitset<hex_count> LookupBitboard::getRayAttacks(bitset<hex_count> occupied, Dire
 	return attacks;
 }
 
+bitset<hex_count> LookupBitboard::cornerAttacks1(bitset<hex_count> occupied, Tile hex) { 
+	return getRayAttacks(occupied, CornerW, hex) | getRayAttacks(occupied, CornerE, hex); 
+}
+bitset<hex_count> LookupBitboard::cornerAttacks2(bitset<hex_count> occupied, Tile hex) {
+	return getRayAttacks(occupied, CornerSW, hex) | getRayAttacks(occupied, CornerNE, hex); 
+}
+bitset<hex_count> LookupBitboard::cornerAttacks3(bitset<hex_count> occupied, Tile hex) {
+	return getRayAttacks(occupied, CornerNW, hex) | getRayAttacks(occupied, CornerSE, hex);
+}
+
+bitset<hex_count> LookupBitboard::edgeAttacks1(bitset<hex_count> occupied, Tile hex) { 
+	return getRayAttacks(occupied, EdgeN, hex) | getRayAttacks(occupied, EdgeS, hex); 
+}
+bitset<hex_count> LookupBitboard::edgeAttacks2(bitset<hex_count> occupied, Tile hex) {
+	return getRayAttacks(occupied, EdgeSW, hex) | getRayAttacks(occupied, EdgeNE, hex);
+}
+bitset<hex_count> LookupBitboard::edgeAttacks3(bitset<hex_count> occupied, Tile hex) {
+	return getRayAttacks(occupied, EdgeNW, hex) | getRayAttacks(occupied, EdgeSE, hex);
+}
+
 //-----------------------------------------------------------------------------
 //-public methods--------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -224,4 +244,26 @@ void LookupBitboard::setRayAttacks(BitBoard& bb){
 			}
 		}
 	}
+}
+
+bitset<hex_count> LookupBitboard::getPawnAttacks(BitBoard& bb, Tile pos, Colour c) {
+	return c == white ? (WpawnAttacks[pos]) : (BpawnAttacks[pos]); 
+}
+bitset<hex_count> LookupBitboard::getPawnMoves(BitBoard& bb, Tile pos, Colour c) { 
+	return c == white ? (WpawnMoves[pos]) : (BpawnMoves[pos]); 
+}
+bitset<hex_count> LookupBitboard::getKnightAttacks(BitBoard& bb, Tile pos) { 
+	return knightAttacks[pos];
+}
+bitset<hex_count> LookupBitboard::getKingAttacks(BitBoard& bb, Tile pos) { 
+	return kingAttacks[pos]; 
+}
+bitset<hex_count> LookupBitboard::getRookAttacks(BitBoard& bb, Tile pos) {
+	return (edgeAttacks1(bb.Occupied, pos) | edgeAttacks2(bb.Occupied, pos) | edgeAttacks3(bb.Occupied, pos));
+}
+bitset<hex_count> LookupBitboard::getBishopAttacks(BitBoard& bb, Tile pos) { 
+	return (cornerAttacks1(bb.Occupied, pos) | cornerAttacks2(bb.Occupied, pos) | cornerAttacks3(bb.Occupied, pos)); 
+}
+bitset<hex_count> LookupBitboard::getQueenAttacks(BitBoard& bb, Tile pos) { 
+	return getRookAttacks(bb, pos) | getBishopAttacks(bb, pos); 
 }

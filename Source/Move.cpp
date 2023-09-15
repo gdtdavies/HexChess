@@ -1,5 +1,14 @@
 #include "../Headers/Move.h"
 
+//-----------------------------------------------------------------------------
+//-private methods-------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
+//no private methods yet
+
+//-----------------------------------------------------------------------------
+//-public methods--------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 Move::Move(Tile origin, Tile destination, Type type, Colour colour)
 {
@@ -9,7 +18,7 @@ Move::Move(Tile origin, Tile destination, Type type, Colour colour)
 	this->colour = colour;
 }
 
-void Move::run(BitBoard& bb) {
+void Move::run(BitBoard& bb, vector<Move>& moves) {
 	phalfMC = bb.halfMC;
 	pfullMC = bb.fullMC;
 	
@@ -26,6 +35,13 @@ void Move::run(BitBoard& bb) {
 			bb.EnPassents = 0;
 			if (destination == origin + 2*EdgeN)
 				bb.EnPassents.set(origin + EdgeN);
+			if (promo != toNone) {
+				bb.Wpawns.reset(destination);
+				if (promo == toKnight) bb.Wknights.set(destination);
+				else if (promo == toBishop) bb.Wbishops.set(destination);
+				else if (promo == toRook) bb.Wrooks.set(destination); 
+				else if (promo == toQueen) bb.Wqueens.set(destination);
+			}
 			bb.halfMC = -1;
 		}
 		else if (type == knight) { bb.Wknights.reset(origin); bb.Wknights.set(destination); }
@@ -45,6 +61,13 @@ void Move::run(BitBoard& bb) {
 			bb.EnPassents = 0;
 			if (destination == origin + 2 * EdgeS)
 				bb.EnPassents.set(origin + EdgeS);
+			if (promo != toNone) {
+				bb.Bpawns.reset(destination);
+				if (promo == toKnight) bb.Bknights.set(destination);
+				else if (promo == toBishop) bb.Bbishops.set(destination);
+				else if (promo == toRook) bb.Brooks.set(destination);
+				else if (promo == toQueen) bb.Bqueens.set(destination);
+			}
 			bb.halfMC = -1;
 		}
 		else if (type == knight) { bb.Bknights.reset(origin); bb.Bknights.set(destination); }
@@ -86,13 +109,12 @@ void Move::run(BitBoard& bb) {
 	if (colour == black)
 		bb.fullMC++;
 
-	//bb.move_history.push_back(*this);
+	moves.push_back(*this);
 
 	done = true;
 }
 
-void Move::undo(BitBoard& bb){
-	//TODO: implement
+void Move::undo(BitBoard& bb, vector<Move>& moves){
 	if (!done) return; // don't want to undo a move that hasn't been made yet
 	
 	bb.halfMC = phalfMC;
@@ -105,6 +127,12 @@ void Move::undo(BitBoard& bb){
 			bb.Wpawns.set(origin);   bb.Wpawns.reset(destination);  
 			if (pEnPassent.test(destination))
 				bb.Bpawns.set(destination + EdgeS);
+			if (promo != toNone) {
+				if (promo == toKnight) bb.Wknights.reset(destination);
+				else if (promo == toBishop) bb.Wbishops.reset(destination);
+				else if (promo == toRook) bb.Wrooks.reset(destination);
+				else if (promo == toQueen) bb.Wqueens.reset(destination);
+			}
 		}
 		else if (type == knight) { bb.Wknights.set(origin); bb.Wknights.reset(destination); }
 		else if (type == bishop) { bb.Wbishops.set(origin); bb.Wbishops.reset(destination); }
@@ -118,6 +146,12 @@ void Move::undo(BitBoard& bb){
 			bb.Bpawns.set(origin); bb.Bpawns.reset(destination);
 			if (pEnPassent.test(destination))
 				bb.Wpawns.set(destination + EdgeN);
+			if (promo != toNone) {
+				if (promo == toKnight) bb.Bknights.reset(destination);
+				else if (promo == toBishop) bb.Bbishops.reset(destination);
+				else if (promo == toRook) bb.Brooks.reset(destination);
+				else if (promo == toQueen) bb.Bqueens.reset(destination);
+			}
 		}
 		else if (type == knight) { bb.Bknights.set(origin); bb.Bknights.reset(destination); }
 		else if (type == bishop) { bb.Bbishops.set(origin); bb.Bbishops.reset(destination); }
@@ -149,7 +183,7 @@ void Move::undo(BitBoard& bb){
 	bb.Bpieces = bb.Bpawns | bb.Bknights | bb.Bbishops | bb.Brooks | bb.Bqueens | bb.Bking;
 
 	bb.Occupied = bb.Wpieces | bb.Bpieces;
-	//bb.move_history.pop_back();
+	moves.pop_back();
 	done = false;
 }
 
@@ -195,7 +229,7 @@ bool Move::BisCheck(BitBoard& bb, LookupBitboard& LuBB) {
 	return false;
 }
 
-bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB) {
+bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 	//check the move is in the list of moves for the piece
 	bitset<hex_count> opponant_pieces = colour == white ? bb.Bpieces : bb.Wpieces;
 	bitset<hex_count> active_pieces = bb.Occupied & ~opponant_pieces;
@@ -213,18 +247,18 @@ bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB) {
 	if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeN)) return false;
 	if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeS)) return false;
 	//make the move
-	this->run(bb);
+	this->run(bb, moves);
 	//check if the move puts the player in check
 	bool isLegal = true;
 	if      (colour == white && this->WisCheck(bb, LuBB)) isLegal = false;
 	else if (colour == black && this->BisCheck(bb, LuBB)) isLegal = false;
 	//undo the move
-	this->undo(bb);
+	this->undo(bb, moves);
 	//if it did put the player in check, return false
 	return isLegal;
 }
 
-bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB) {
+bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 	//check if the move puts the other player in check
 	if (colour == white && !this->BisCheck(bb, LuBB)) return false;
 	if (colour == black && !this->WisCheck(bb, LuBB)) return false;
@@ -241,14 +275,14 @@ bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB) {
 			m.setTakenType(bb.getTypeInHex((Tile)attack));
 
 			//it is not checkmate if a legal move exists
-			if (m.isLegal(bb, LuBB))
+			if (m.isLegal(bb, LuBB, moves))
 				return false;
 		}
 	}
 	return true;
 }
 
-bool Move::isStalemate(BitBoard& bb, LookupBitboard& LuBB) {
+bool Move::isStalemate(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 	//check if the move puts the other player in check. it can't be stalemate if the other player is in check
 	if (colour == white && this->BisCheck(bb, LuBB)) return false;
 	if (colour == black && this->WisCheck(bb, LuBB)) return false;
@@ -265,14 +299,14 @@ bool Move::isStalemate(BitBoard& bb, LookupBitboard& LuBB) {
 			m.setTakenType(bb.getTypeInHex((Tile)attack));
 
 			//it is not stalemate if a legal move exists
-			if (m.isLegal(bb, LuBB))
+			if (m.isLegal(bb, LuBB, moves))
 				return false;
 		}
 	}
 	return true;
 }
 
-bool Move::isDraw(BitBoard& bb) {
+bool Move::isDraw(BitBoard& bb, vector<Move>& moves) {
 	//50 move rule
 	if (bb.halfMC >= 100) {
 		cout << "move clock exceeded" << endl;
@@ -291,6 +325,6 @@ bool Move::isDraw(BitBoard& bb) {
 	return false;
 }
 
-void Move::toString() {
+void Move::print() {
 	cout << "move: \n\torigin = " << origin << "\n\tdestination = " << destination << "\n\ttype = " << type << "\n\ttakenType = " << takenType <<  "\n\tcolour = " << colour << endl;
 }

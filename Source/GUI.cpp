@@ -16,7 +16,10 @@
 //--------------
 
 
-//-private------
+//-----------------------------------------------------------------------------
+//-orivate methods-------------------------------------------------------------
+//-----------------------------------------------------------------------------
+
 void GUI::drawLine(float x1, float y1, float x2, float y2, Colour c) {
 	glBegin(GL_LINES);
 	
@@ -91,7 +94,9 @@ void GUI::drawKing(float x, float y, Colour c) {
 
 }
 
-//-public-------
+//-----------------------------------------------------------------------------
+//-public methods--------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 void GUI::drawBoard() {
 	double init_x = -hexSize * 5;
@@ -145,7 +150,6 @@ void GUI::drawBoard() {
 		x += hexSize;
 	}
 }
-
 void GUI::drawPiece(Tile tile, Colour c, Type t) {
 	Hex hex = hexes[tile];
 	float x = hex.x_c;
@@ -167,7 +171,6 @@ void GUI::drawSelectedHex(Tile tile) {
 	std::vector<float> c = { 1., 0.5, 0.1 };
 	drawHex(x, y, c);
 }
-
 void GUI::drawAttack(Tile attack, bitset<hex_count> occupied) {
 	double cx = hexes[attack].x_c;
 	double cy = hexes[attack].y_c;
@@ -178,4 +181,33 @@ void GUI::drawAttack(Tile attack, bitset<hex_count> occupied) {
 		occupied.test(attack) ? drawHex(cx, cy, { 0.4,  0.1,  0.1 }) : drawHex(cx, cy, { 0.1,  0.4, 0.1 });
 	else if (bb.LightHexes.test(attack))
 		occupied.test(attack) ? drawHex(cx, cy, { 0.75, 0.15, 0.15 }) : drawHex(cx, cy, { 0.15, 0.75,  0.15 });
+}
+void GUI::drawPromotion(Colour c) {
+
+	Tile tiles[4] = { e6, f5, f6, g7 };
+	vector<float> bg;
+	c == white ? bg = { 0.0, 0.0, 0.0 } : bg = { 1.0, 1.0, 1.0 };
+	
+	for (Tile tile : tiles) {
+		double x = hexes[tile].x_c;
+		double y = hexes[tile].y_c;
+
+		drawHex(x, y, bg);
+	}
+
+	drawKnight(hexes[tiles[0]].x_c, hexes[tiles[0]].y_c, c);
+	drawBishop(hexes[tiles[1]].x_c, hexes[tiles[1]].y_c, c);
+	drawQueen(hexes[tiles[2]].x_c, hexes[tiles[2]].y_c, c);
+	drawRook(hexes[tiles[3]].x_c, hexes[tiles[3]].y_c, c);
+
+	float x_c = hexes[tiles[2]].x_c;
+	float y_c = hexes[tiles[2]].y_c;
+
+	drawLine(x_c - hexSize / 1.5, y_c, x_c - hexSize / 3., y_c + hexSize / 2., c);
+	drawLine(x_c - hexSize / 3., y_c + hexSize / 2., x_c + hexSize / 3., y_c + hexSize / 2., c);
+	drawLine(x_c + hexSize / 3., y_c + hexSize / 2., x_c + hexSize / 1.5, y_c, c);
+	drawLine(x_c + hexSize / 1.5, y_c, x_c + hexSize / 3., y_c - hexSize / 2., c);
+	drawLine(x_c + hexSize / 3., y_c - hexSize / 2., x_c - hexSize / 3., y_c - hexSize / 2., c);
+	drawLine(x_c - hexSize / 3., y_c - hexSize / 2., x_c - hexSize / 1.5, y_c, c);
+
 }
