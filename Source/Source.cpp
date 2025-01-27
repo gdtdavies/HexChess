@@ -5,13 +5,13 @@
 using namespace std;
 
 //--- OpenGL ---
-#include "GL/glew.h"
-#include "GL/wglew.h"
+#include "../GL/glew.h"
+#include "../GL/wglew.h"
 #pragma comment(lib, "glew32.lib")
-#include "glm\glm.hpp"
-#include "glm\gtc\matrix_transform.hpp"
+#include "../glm/glm.hpp"
+#include "../glm/gtc/matrix_transform.hpp"
 
-#include "GL\freeglut.h"
+#include "../GL/freeglut.h"
 //--------------
 
 //-header files-
@@ -368,14 +368,14 @@ int main(int argc, char** argv) {
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
 
-	//loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
+	loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
 	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
 
 	//checkmate test with qi9 | stalemate test with qi8
 	//loadFromFen("1r4/7/8/9/10/11/10/9/8/3q3/5K w - 99 1");
 
 	//en passent test b6 and j10 for white; b2 and j6 for black
-	loadFromFen("6/2p1P2/2P2p2/9/5k4/11/4K5/9/2P2p2/2p1P2/6 b j6 0 1");
+	//loadFromFen("6/2p1P2/2P2p2/9/5k4/11/4K5/9/2P2p2/2p1P2/6 b j6 0 1");
 
 	//promotion test
 	//loadFromFen("1P2p1/1P3p1/1P4p1/1P5p1/1P6p1/1P7p1/1P6p1/1P5p1/1P4p1/1P3p1/1P2p1 w - 0 1");

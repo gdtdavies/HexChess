@@ -24,6 +24,10 @@ private:
 	int phalfMC = 0, pfullMC = 0;
 	bitset<hex_count> pEnPassent = 0;
 
+	string tileToString(Tile t);
+	string typeToString(Type t);
+	string colourToString(Colour c);
+
 public:
 	inline Move() {}
 	Move(Tile origin, Tile destination, Type type, Colour colour);

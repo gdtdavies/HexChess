@@ -21,7 +21,7 @@ private:
 	void drawKing(float x, float y, Colour c);
 
 public:
-	double screenWidth = 1000, screenHeight = 1000;
+	double screenWidth = 720, screenHeight = 720;
 	float hexSize, pieceSize;
 	std::vector<Hex> hexes;
 	

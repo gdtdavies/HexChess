@@ -6,6 +6,99 @@
 
 //no private methods yet
 
+string Move::colourToString(Colour c) {
+	switch (c) {
+	case white: return "white";
+	case black: return "black";
+	}
+	return "error";
+}
+
+string Move::typeToString(Type t) {
+	switch (t) {
+	case pawn: return "pawn";
+	case knight: return "knight";
+	case bishop: return "bishop";
+	case rook: return "rook";
+	case queen: return "queen";
+	case king: return "king";
+	default: return "none";
+	}
+	return "error";
+}
+
+string Move::tileToString(Tile t) {
+	string str = "";
+	if (t <= 10) 
+	{
+		str.append("a");
+		int num = t - 1;
+		str.append(to_string(num));
+	}
+	else if (t <= 21)
+	{
+		str.append("b");
+		int num = t - 11;
+		str.append(to_string(num));
+	}
+	else if (t <= 31)
+	{
+		str.append("c");
+		int num = t - 21;
+		str.append(to_string(num));
+	}
+	else if (t <= 42)
+	{
+		str.append("d");
+		int num = t - 31;
+		str.append(to_string(num));
+	}
+	else if (t <= 52)
+	{
+		str.append("e");
+		int num = t - 41;
+		str.append(to_string(num));
+	}
+	else if (t <= 63)
+	{
+		str.append("f");
+		int num = t - 51;
+		str.append(to_string(num));
+	}
+	else if (t <= 73)
+	{
+		str.append("g");
+		int num = t - 62;
+		str.append(to_string(num));
+	}
+	else if (t <= 84)
+	{
+		str.append("h");
+		int num = t - 73;
+		str.append(to_string(num));
+	}
+	else if (t <= 94)
+	{
+		str.append("i");
+		int num = t - 84;
+		str.append(to_string(num));
+	}
+	else if (t <= 105)
+	{
+		str.append("j");
+		int num = t - 95;
+		str.append(to_string(num));
+	}
+	else if (t <= 115)
+	{
+		str.append("k");
+		int num = t - 106;
+		str.append(to_string(num));
+	}
+
+	return str;
+}
+
 //-----------------------------------------------------------------------------
 //-public methods--------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -244,8 +337,10 @@ bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 		: 0;
 	if (!attacks.test(destination)) return false;
 	//if the piece is a pawn, check that their isn't a piece blocking the double move
-	if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeN)) return false;
-	if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeS)) return false;
+	if (type == pawn) {
+		if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeN)) return false;
+		if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeS)) return false;
+	}
 	//make the move
 	this->run(bb, moves);
 	//check if the move puts the player in check
@@ -326,5 +421,5 @@ bool Move::isDraw(BitBoard& bb, vector<Move>& moves) {
 }
 
 void Move::print() {
-	cout << "move: \n\torigin = " << origin << "\n\tdestination = " << destination << "\n\ttype = " << type << "\n\ttakenType = " << takenType <<  "\n\tcolour = " << colour << endl;
+	cout << "move: \n\torigin = " << tileToString(origin) << "\n\tdestination = " << tileToString(destination) << "\n\ttype = " << typeToString(type) << "\n\ttakenType = " << typeToString(takenType) <<  "\n\tcolour = " << colourToString(colour) << endl;
 }
