@@ -1,6 +1,6 @@
 #pragma once
 
-const enum Colour : int { white, black, NA };
+const enum Colour : int { white, black, red, NA };
 const enum Type : int { pawn, knight, bishop, rook, queen, king, empty };
 const enum Tile : int {
 o1, o2,      a1, a2, a3, a4, a5, a6,      o3, o4,

@@ -25,7 +25,8 @@ void GUI::drawLine(float x1, float y1, float x2, float y2, Colour c) {
 	
 	c == white ? glColor3f(1.0, 1.0, 1.0) 
 		: c == black ? glColor3f(0.0, 0.0, 0.0) 
-		: glColor3f(0.75, 0.0, 0.0);
+		: c == red ? glColor3f(0.75, 0.0, 0.0)
+		: glColor3f(0.0, 1.0, 0.0);
 	glVertex2f(x1, y1);
 	glVertex2f(x2, y2);
 	glEnd();

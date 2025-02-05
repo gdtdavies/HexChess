@@ -89,7 +89,16 @@ void display() {
 	//displaying the pieces
 	for (int hex = 0; hex < hex_count; hex++) {
 		if (!bb.Occupied.test(hex)) continue;
-		gui.drawPiece((Tile)hex, bb.getColourInHex((Tile)hex), bb.getTypeInHex((Tile)hex));
+		Type t = bb.getTypeInHex((Tile)hex);
+		Colour c = bb.getColourInHex((Tile)hex);
+		if (!move_history.empty() && t == king) {
+			if (c == white && move_history.back().WisCheck(bb, LuBB)
+				|| c == black && move_history.back().BisCheck(bb, LuBB)) {
+				gui.drawPiece((Tile)hex, Colour::red, t);
+				continue;
+			}
+		}
+		gui.drawPiece((Tile)hex, c, t);
 	}
 
 	//displaying the promotions
