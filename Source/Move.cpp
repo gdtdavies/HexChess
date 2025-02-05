@@ -1,100 +1,79 @@
 #include "../Headers/Move.h"
+#include "../Headers/MoveGen.h"
 
 //-----------------------------------------------------------------------------
 //-private methods-------------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-//no private methods yet
-
 string Move::colourToString(Colour c) {
 	switch (c) {
-	case white: return "white";
-	case black: return "black";
+	case Colour::white: return "white";
+	case Colour::black: return "black";
 	}
 	return "error";
 }
 
 string Move::typeToString(Type t) {
 	switch (t) {
-	case pawn: return "pawn";
-	case knight: return "knight";
-	case bishop: return "bishop";
-	case rook: return "rook";
-	case queen: return "queen";
-	case king: return "king";
-	default: return "none";
+	case Type::pawn: return "pawn";
+	case Type::knight: return "knight";
+	case Type::bishop: return "bishop";
+	case Type::rook: return "rook";
+	case Type::queen: return "queen";
+	case Type::king: return "king";
+	case Type::empty: return "empty";
 	}
 	return "error";
 }
 
 string Move::tileToString(Tile t) {
 	string str = "";
-	if (t <= 10) 
-	{
+	int num = 0;
+	if (t <= 10) {
 		str.append("a");
-		int num = t - 1;
-		str.append(to_string(num));
+		num = t - 1;
 	}
-	else if (t <= 21)
-	{
+	else if (t <= 21){
 		str.append("b");
-		int num = t - 11;
-		str.append(to_string(num));
+		num = t - 11;
 	}
-	else if (t <= 31)
-	{
+	else if (t <= 31){
 		str.append("c");
-		int num = t - 21;
-		str.append(to_string(num));
+		num = t - 21;
 	}
-	else if (t <= 42)
-	{
+	else if (t <= 42){
 		str.append("d");
-		int num = t - 31;
-		str.append(to_string(num));
+		num = t - 31;
 	}
-	else if (t <= 52)
-	{
+	else if (t <= 52){
 		str.append("e");
-		int num = t - 41;
-		str.append(to_string(num));
+		num = t - 41;
 	}
-	else if (t <= 63)
-	{
+	else if (t <= 63){
 		str.append("f");
-		int num = t - 51;
-		str.append(to_string(num));
+		num = t - 51;
 	}
-	else if (t <= 73)
-	{
+	else if (t <= 73){
 		str.append("g");
-		int num = t - 62;
-		str.append(to_string(num));
+		num = t - 62;
 	}
-	else if (t <= 84)
-	{
+	else if (t <= 84){
 		str.append("h");
-		int num = t - 73;
-		str.append(to_string(num));
+		num = t - 73;
 	}
-	else if (t <= 94)
-	{
+	else if (t <= 94){
 		str.append("i");
-		int num = t - 84;
-		str.append(to_string(num));
+		num = t - 84;
 	}
-	else if (t <= 105)
-	{
+	else if (t <= 105){
 		str.append("j");
-		int num = t - 95;
-		str.append(to_string(num));
+		num = t - 95;
 	}
-	else if (t <= 115)
-	{
+	else if (t <= 115){
 		str.append("k");
-		int num = t - 106;
-		str.append(to_string(num));
+		num = t - 106;
 	}
+	str.append(to_string(num));
 
 	return str;
 }
@@ -338,25 +317,33 @@ bool Move::isLegal(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 	if (!attacks.test(destination)) return false;
 	//if the piece is a pawn, check that their isn't a piece blocking the double move
 	if (type == pawn) {
-		if (colour == white && bb.WpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeN)) return false;
-		if (colour == black && bb.BpawnStarts.test(origin) && bb.Occupied.test(origin + EdgeS)) return false;
+		if (colour == white 
+			&& bb.WpawnStarts.test(origin) 
+			&& bb.Occupied.test(origin + EdgeN) 
+			&& destination == origin + 2*EdgeN) 
+			return false;
+		if (colour == black 
+			&& bb.BpawnStarts.test(origin) 
+			&& bb.Occupied.test(origin + EdgeS) 
+			&& destination == origin + 2*EdgeS) 
+			return false;
 	}
 	//make the move
-	this->run(bb, moves);
+	run(bb, moves);
 	//check if the move puts the player in check
 	bool isLegal = true;
-	if      (colour == white && this->WisCheck(bb, LuBB)) isLegal = false;
-	else if (colour == black && this->BisCheck(bb, LuBB)) isLegal = false;
+	if      (colour == white && WisCheck(bb, LuBB)) isLegal = false;
+	else if (colour == black && BisCheck(bb, LuBB)) isLegal = false;
 	//undo the move
-	this->undo(bb, moves);
+	undo(bb, moves);
 	//if it did put the player in check, return false
 	return isLegal;
 }
 
 bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 	//check if the move puts the other player in check
-	if (colour == white && !this->BisCheck(bb, LuBB)) return false;
-	if (colour == black && !this->WisCheck(bb, LuBB)) return false;
+	if (colour == white && !BisCheck(bb, LuBB)) return false;
+	if (colour == black && !WisCheck(bb, LuBB)) return false;
 
 	for (int hex = 0; hex < hex_count; hex++) {
 		if (bb.SkipHexes.test(hex)) continue;
@@ -374,30 +361,28 @@ bool Move::isCheckmate(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) 
 				return false;
 		}
 	}
+	cout << "checkmate << " << colourToString(colour) << " wins >>" << endl;
 	return true;
 }
 
 bool Move::isStalemate(BitBoard& bb, LookupBitboard& LuBB, vector<Move>& moves) {
 	//check if the move puts the other player in check. it can't be stalemate if the other player is in check
-	if (colour == white && this->BisCheck(bb, LuBB)) return false;
-	if (colour == black && this->WisCheck(bb, LuBB)) return false;
+	if (colour == white && BisCheck(bb, LuBB)) return false;
+	if (colour == black && WisCheck(bb, LuBB)) return false;
+
+	MoveGenerator mg;
+	Move lastMove = moves.back();
 
 	for (int hex = 0; hex < hex_count; hex++) {
 		if (bb.SkipHexes.test(hex)) continue;
-		if (colour == white && !bb.Bpieces.test(hex)) continue;
-		if (colour == black && !bb.Wpieces.test(hex)) continue;
+		if (colour == white && !bb.Wpieces.test(hex)) continue;
+		if (colour == black && !bb.Bpieces.test(hex)) continue;
+		std::bitset<hex_count> legal_moves = mg.getLegalMoves(bb, LuBB, (Tile)hex, lastMove.getColour(), lastMove.getType(), moves);
+		std::bitset<hex_count> legal_captures = mg.getLegalCaptures(bb, LuBB, (Tile)hex, lastMove.getColour(), lastMove.getType(), moves);
 
-		for (int attack = 0; attack < hex_count; attack++) {
-			if (bb.SkipHexes.test(attack)) continue;
-
-			Move m = Move((Tile)hex, (Tile)attack, bb.getTypeInHex((Tile)hex), colour == white ? black : white);
-			m.setTakenType(bb.getTypeInHex((Tile)attack));
-
-			//it is not stalemate if a legal move exists
-			if (m.isLegal(bb, LuBB, moves))
-				return false;
-		}
+		if ((legal_moves | legal_captures).any()) return false;
 	}
+	cout << "Stalemate" << endl;
 	return true;
 }
 

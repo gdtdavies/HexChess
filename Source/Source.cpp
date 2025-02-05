@@ -25,6 +25,8 @@ GUI gui;
 
 #include "../Headers/Move.h"
 #include "../Headers/Enums.h"
+#include "../Headers/MoveGen.h"
+#include "../Headers/Eval.h"
 
 glm::mat4 ViewMatrix, ProjectionMatrix;
 
@@ -36,6 +38,7 @@ bool gameOver = false;
 bool isPromotion = false;
 
 vector<Move> move_history;
+Evaluator evaluator;
 
 //-function defs-
 void mouseCallback(int button, int state, int x, int y);
@@ -186,20 +189,18 @@ void mouseCallback(int button, int state, int x, int y) {
 			move.run(bb, move_history);
 			
 			//end the game if it is checkmate
-			if (move.isCheckmate(bb, LuBB, move_history)) {
+			if (move.isCheckmate(bb, LuBB, move_history) 
+				|| move.isStalemate(bb, LuBB, move_history) 
+				|| move.isDraw(bb, move_history)) {
 				gameOver = true;
-				cout << "checkmate << " << (turn == white ? "white" : "black") << " wins >>" << endl;
 			}
-			//end the game if it is stalemate
-			else if (move.isStalemate(bb, LuBB, move_history)) {	
-				gameOver = true;
-				cout << "Stalemate" << endl;
+
+			if (!gameOver) {
+				evaluator.reset();
+				double score = evaluator.evaluate(bb, LuBB, move_history, 0);
+				cout << "Score: " << score << endl;
 			}
-			//end the game if it is a draw
-			else if (move.isDraw(bb, move_history)) {
-				gameOver = true;
-				cout << "Draw" << endl;
-			}
+
 			
 			selectedHex = none;
 			turn = turn == white ? black : white;
@@ -367,6 +368,12 @@ int main(int argc, char** argv) {
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 		std::cout << " GLEW ERROR" << std::endl;
+
+	LuBB.setPawnAttacks(bb);
+	LuBB.setPawnMoves(bb);
+	LuBB.setKnightAttacks(bb);
+	LuBB.setKingAttacks(bb);
+	LuBB.setRayAttacks(bb);
 
 	loadFromFen("6/p5P/rp4PR/n1p3P1N/q2p2P2Q/bbb1p1P1BBB/k2p2P2K/n1p3P1N/rp4PR/p5P/6 w - 0 1");
 	//loadFromFen("1prnqb/2p2bk/3p1b1n/4p3r/5ppppp/11/PPPPP5/R3P4/N1B1P3/QB2P2/BKNRP1 w - 0 1");
